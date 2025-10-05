@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Feature Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        .button:hover { background: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Feature Access Debug Tool</h1>
+    
+    <div class="section">
+        <h2>Current User Info</h2>
+        <div id="userInfo"></div>
+    </div>
+
+    <div class="section">
+        <h2>Feature Access Test</h2>
+        <button class="button" onclick="testFeatureAccess()">Test Feature Access</button>
+        <button class="button" onclick="clearCache()">Clear Cache</button>
+        <button class="button" onclick="refreshFeatures()">Refresh Features</button>
+        <div id="featureResults"></div>
+    </div>
+
+    <div class="section">
+        <h2>Individual Feature Tests</h2>
+        <button class="button" onclick="testFeature('attendance')">Test Attendance</button>
+        <button class="button" onclick="testFeature('homework')">Test Homework</button>
+        <button class="button" onclick="testFeature('events')">Test Events</button>
+        <button class="button" onclick="testFeature('reports')">Test Reports</button>
+        <div id="individualResults"></div>
+    </div>
+
+    <script>
+        // Display current user info
+        function displayUserInfo() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('userInfo').innerHTML = `
+                <pre>${JSON.stringify(user, null, 2)}</pre>
+            `;
+        }
+
+        // Test feature access
+        async function testFeatureAccess() {
+            const resultsDiv = document.getElementById('featureResults');
+            resultsDiv.innerHTML = '<p class="info">Testing feature access...</p>';
+
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const schoolId = user.schoolId;
+
+                if (!schoolId) {
+                    resultsDiv.innerHTML = '<p class="error">No school ID found in user data</p>';
+                    return;
+                }
+
+                // Make API call to get features
+                const response = await fetch(`/api/schools/${schoolId}/features`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <h3 class="success">✅ Feature Access Test Results</h3>
+                    <p><strong>School ID:</strong> ${data.features.schoolId}</p>
+                    <p><strong>Subscription Status:</strong> ${data.features.subscriptionStatus}</p>
+                    <p><strong>Subscription Plan:</strong> ${data.features.subscription.name} (${data.features.subscription.planType})</p>
+                    <p><strong>Available Features (${data.features.features.available.length}):</strong></p>
+                    <ul>
+                        ${data.features.features.available.map(f => `<li class="success">${f}</li>`).join('')}
+                    </ul>
+                    <p><strong>Unavailable Features (${data.features.features.unavailable.length}):</strong></p>
+                    <ul>
+                        ${data.features.features.unavailable.map(f => `<li class="error">${f}</li>`).join('')}
+                    </ul>
+                    <h4>Raw Response:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <p class="error">❌ Error testing feature access: ${error.message}</p>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        }
+
+        // Clear cache
+        function clearCache() {
+            // Clear localStorage cache if any
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('features_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            alert('Cache cleared! Try testing feature access again.');
+        }
+
+        // Refresh features
+        async function refreshFeatures() {
+            clearCache();
+            await testFeatureAccess();
+        }
+
+        // Test individual feature
+        async function testFeature(featureName) {
+            const resultsDiv = document.getElementById('individualResults');
+            
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const schoolId = user.schoolId;
+
+                const response = await fetch(`/api/schools/${schoolId}/features`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                const hasFeature = data.features.features.available.includes(featureName);
+                
+                resultsDiv.innerHTML += `
+                    <p><strong>${featureName}:</strong> 
+                        <span class="${hasFeature ? 'success' : 'error'}">
+                            ${hasFeature ? '✅ Available' : '❌ Not Available'}
+                        </span>
+                    </p>
+                `;
+
+            } catch (error) {
+                resultsDiv.innerHTML += `<p class="error">Error testing ${featureName}: ${error.message}</p>`;
+            }
+        }
+
+        // Initialize
+        displayUserInfo();
+    </script>
+</body>
+</html>

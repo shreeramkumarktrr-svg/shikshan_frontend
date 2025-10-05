@@ -1,5 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { FEATURES } from '../utils/featureAccess'
+import NavigationItem from './NavigationItem'
 import {
   HomeIcon,
   UserGroupIcon,
@@ -13,6 +15,7 @@ import {
   BuildingOfficeIcon,
   CreditCardIcon,
   DocumentTextIcon,
+  UsersIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 
@@ -23,6 +26,7 @@ function Sidebar({ onClose }) {
   const superAdminNavigation = [
     { name: 'Dashboard', href: '/app/dashboard', icon: HomeIcon },
     { name: 'Schools', href: '/app/schools', icon: BuildingOfficeIcon },
+    { name: 'Interested Visitors', href: '/app/interested-visitors', icon: UsersIcon },
     { name: 'Subscriptions', href: '/app/subscriptions', icon: DocumentTextIcon },
     { name: 'Payments', href: '/app/payments', icon: CreditCardIcon },
     { name: 'Analytics', href: '/app/analytics', icon: ChartBarIcon }
@@ -34,12 +38,12 @@ function Sidebar({ onClose }) {
     { name: 'Teachers', href: '/app/teachers', icon: AcademicCapIcon, roles: ['school_admin', 'principal'] },
     { name: 'Students', href: '/app/students', icon: UserGroupIcon, roles: ['school_admin', 'principal', 'teacher'] },
     { name: 'Classes', href: '/app/classes', icon: AcademicCapIcon, roles: ['school_admin', 'principal', 'teacher'] },
-    { name: 'Attendance', href: '/app/attendance', icon: ClipboardDocumentListIcon, roles: ['school_admin', 'principal', 'teacher'] },
-    { name: 'Homework', href: '/app/homework', icon: CalendarIcon, roles: ['school_admin', 'principal', 'teacher', 'student', 'parent'] },
-    { name: 'Events', href: '/app/events', icon: SpeakerWaveIcon, roles: ['all'] },
+    { name: 'Attendance', href: '/app/attendance', icon: ClipboardDocumentListIcon, roles: ['school_admin', 'principal', 'teacher'], feature: FEATURES.ATTENDANCE },
+    { name: 'Homework', href: '/app/homework', icon: CalendarIcon, roles: ['school_admin', 'principal', 'teacher', 'student', 'parent'], feature: FEATURES.HOMEWORK },
+    { name: 'Events', href: '/app/events', icon: SpeakerWaveIcon, roles: ['all'], feature: FEATURES.EVENTS },
     { name: 'Complaints', href: '/app/complaints', icon: ExclamationTriangleIcon, roles: ['all'] },
-    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent'] },
-    { name: 'Reports', href: '/app/reports', icon: ChartBarIcon, roles: ['school_admin', 'principal', 'teacher'] }
+    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent'], feature: FEATURES.FEE_MANAGEMENT },
+    { name: 'Reports', href: '/app/reports', icon: ChartBarIcon, roles: ['school_admin', 'principal', 'teacher'], feature: FEATURES.REPORTS }
   ]
 
   // Choose navigation based on user role
@@ -52,6 +56,12 @@ function Sidebar({ onClose }) {
         if (item.roles.includes('all')) return true
         return item.roles.some(role => hasRole(role))
       })
+
+  // Debug logging
+  console.log('👤 Current user:', user);
+  console.log('🔑 User roles:', user?.role);
+  console.log('🏫 School ID:', user?.schoolId);
+  console.log('📋 Navigation items:', filteredNavigation.length);
 
   return (
     <div className="flex flex-col w-64 bg-white shadow-lg h-full">
@@ -71,21 +81,11 @@ function Sidebar({ onClose }) {
       <nav className="flex-1 px-4 py-6 overflow-y-auto">
         <div className="sidebar-nav">
           {filteredNavigation.map((item) => (
-            <NavLink
+            <NavigationItem
               key={item.name}
-              to={item.href}
-              onClick={onClose} // Close sidebar on mobile when nav item is clicked
-              className={({ isActive }) =>
-                `sidebar-nav-item touch-target text-gray-600 ${
-                  isActive ? 'active' : ''
-                }`
-              }
-            >
-              <div className="nav-icon">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <span className="nav-text">{item.name}</span>
-            </NavLink>
+              item={item}
+              onClose={onClose}
+            />
           ))}
         </div>
       </nav>

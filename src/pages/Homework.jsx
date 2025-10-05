@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { homeworkAPI } from '../utils/api';
+import { useFeatureAccess, FeatureAccessDenied } from '../components/FeatureGuard';
+import { FEATURES, handleFeatureAccessError } from '../utils/featureAccess';
 import LoadingSpinner from '../components/LoadingSpinner';
 import HomeworkModal from '../components/HomeworkModal';
 import HomeworkDetailModal from '../components/HomeworkDetailModal';
@@ -17,6 +19,7 @@ import {
 
 const Homework = () => {
   const { user } = useAuth();
+  const { hasAccess, loading: featureLoading } = useFeatureAccess(FEATURES.HOMEWORK);
   const [homework, setHomework] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -136,6 +139,18 @@ const Homework = () => {
     if (dueDate - now < 24 * 60 * 60 * 1000) return 'Due Soon';
     return 'Pending';
   };
+
+  // Check feature access first
+  if (featureLoading) return <LoadingSpinner />;
+  
+  if (!hasAccess) {
+    return (
+      <FeatureAccessDenied 
+        feature={FEATURES.HOMEWORK}
+        onUpgrade={() => window.location.href = '/app/subscription/upgrade'}
+      />
+    );
+  }
 
   if (loading) return <LoadingSpinner />;
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../utils/api';
+import { useFeatureAccess, FeatureAccessDenied } from '../components/FeatureGuard';
+import { FEATURES } from '../utils/featureAccess';
 import FeeModal from '../components/FeeModal';
 import FeeDetailModal from '../components/FeeDetailModal';
 import PaymentModal from '../components/PaymentModal';
@@ -13,6 +15,7 @@ import { PlusIcon, CurrencyDollarIcon, ClockIcon, ExclamationTriangleIcon, Check
 
 const Fees = () => {
   const { user } = useAuth();
+  const { hasAccess, loading: featureLoading } = useFeatureAccess(FEATURES.FEE_MANAGEMENT);
   const [fees, setFees] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -223,6 +226,18 @@ const Fees = () => {
       )
     }
   ];
+
+  // Check feature access first
+  if (featureLoading) return <LoadingSpinner />;
+  
+  if (!hasAccess) {
+    return (
+      <FeatureAccessDenied 
+        feature={FEATURES.FEE_MANAGEMENT}
+        onUpgrade={() => window.location.href = '/app/subscription/upgrade'}
+      />
+    );
+  }
 
   if (loading) return <LoadingSpinner />;
 

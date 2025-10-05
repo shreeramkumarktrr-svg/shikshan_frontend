@@ -259,9 +259,12 @@ function Schools() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanColor(school.subscriptionPlan)}`}>
-                      {school.subscriptionPlan}
+                      {school.subscription?.name || school.subscriptionPlan}
                     </span>
                     <div className="text-xs text-gray-500 mt-1">
+                      {school.subscription && `₹${school.subscription.price}/${school.subscription.billingCycle}`}
+                    </div>
+                    <div className="text-xs text-gray-500">
                       {school.subscriptionExpiresAt ? 
                         `Expires: ${new Date(school.subscriptionExpiresAt).toLocaleDateString()}` : 
                         'No expiry'
@@ -399,12 +402,48 @@ function CreateSchoolModal({ onClose, onSubmit }) {
     address: '',
     website: '',
     establishedYear: '',
-    subscriptionPlan: 'basic',
+    subscriptionId: '',
     maxStudents: 100,
     maxTeachers: 10
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [subscriptions, setSubscriptions] = useState([])
+
+  useEffect(() => {
+    fetchSubscriptions()
+  }, [])
+
+  const fetchSubscriptions = async () => {
+    try {
+      const response = await api.get('/subscriptions/public')
+      setSubscriptions(response.data.subscriptions)
+      // Set default subscription if available
+      if (response.data.subscriptions.length > 0) {
+        const defaultSub = response.data.subscriptions.find(s => s.planType === 'basic') || response.data.subscriptions[0]
+        setFormData(prev => ({
+          ...prev,
+          subscriptionId: defaultSub.id,
+          maxStudents: defaultSub.maxStudents,
+          maxTeachers: defaultSub.maxTeachers
+        }))
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error)
+    }
+  }
+
+  const handleSubscriptionChange = (subscriptionId) => {
+    const selectedSubscription = subscriptions.find(s => s.id === subscriptionId)
+    if (selectedSubscription) {
+      setFormData(prev => ({
+        ...prev,
+        subscriptionId,
+        maxStudents: selectedSubscription.maxStudents,
+        maxTeachers: selectedSubscription.maxTeachers
+      }))
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -532,13 +571,17 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 Subscription Plan
               </label>
               <select
-                value={formData.subscriptionPlan}
-                onChange={(e) => setFormData({ ...formData, subscriptionPlan: e.target.value })}
+                value={formData.subscriptionId}
+                onChange={(e) => handleSubscriptionChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                required
               >
-                <option value="basic">Basic</option>
-                <option value="standard">Standard</option>
-                <option value="premium">Premium</option>
+                <option value="">Select a plan</option>
+                {subscriptions.map((subscription) => (
+                  <option key={subscription.id} value={subscription.id}>
+                    {subscription.name} - ₹{subscription.price}/{subscription.billingCycle}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -552,7 +595,9 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 value={formData.maxStudents}
                 onChange={(e) => setFormData({ ...formData, maxStudents: parseInt(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                readOnly
               />
+              <p className="text-xs text-gray-500 mt-1">Set by selected plan</p>
             </div>
 
             <div>
@@ -565,7 +610,9 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 value={formData.maxTeachers}
                 onChange={(e) => setFormData({ ...formData, maxTeachers: parseInt(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                readOnly
               />
+              <p className="text-xs text-gray-500 mt-1">Set by selected plan</p>
             </div>
           </div>
 

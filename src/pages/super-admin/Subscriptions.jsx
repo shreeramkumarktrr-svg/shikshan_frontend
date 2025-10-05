@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ChartBarIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import api from '../../utils/api'
 
 function Subscriptions() {
@@ -38,12 +38,26 @@ function Subscriptions() {
 
   const handleUpdateSubscription = async (subscriptionData) => {
     try {
-      await api.put(`/subscriptions/${editingSubscription.id}`, subscriptionData)
+      console.log('Updating subscription ID:', editingSubscription.id)
+      console.log('Update data:', JSON.stringify(subscriptionData, null, 2))
+      
+      // Validate that planType is not included in update data
+      if (subscriptionData.planType) {
+        console.warn('planType found in update data - this should not happen!')
+        delete subscriptionData.planType;
+      }
+      
+      const response = await api.put(`/subscriptions/${editingSubscription.id}`, subscriptionData)
+      console.log('Update response:', response.data)
+      
       setShowModal(false)
       setEditingSubscription(null)
       fetchSubscriptions()
     } catch (error) {
       console.error('Error updating subscription:', error)
+      console.error('Error status:', error.response?.status)
+      console.error('Error data:', error.response?.data)
+      console.error('Request URL:', `/subscriptions/${editingSubscription.id}`)
       throw error
     }
   }
@@ -153,15 +167,29 @@ function Subscriptions() {
             </div>
             
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Key Features:</h4>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Core Features:</h4>
               <div className="grid grid-cols-2 gap-1 text-xs">
-                {Object.entries(subscription.features).slice(0, 6).map(([key, value]) => (
-                  <div key={key} className={`flex items-center ${value ? 'text-green-600' : 'text-gray-400'}`}>
-                    <span className={`w-2 h-2 rounded-full mr-2 ${value ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                  </div>
-                ))}
+                {/* Show core school management features first */}
+                {['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].slice(0, 6).map((key) => {
+                  const value = subscription.features[key];
+                  return (
+                    <div key={key} className={`flex items-center ${value ? 'text-green-600' : 'text-gray-400'}`}>
+                      <span className={`w-2 h-2 rounded-full mr-2 ${value ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                    </div>
+                  );
+                })}
               </div>
+              {/* Show premium features count */}
+              {Object.entries(subscription.features).filter(([key, value]) => 
+                !['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].includes(key) && value
+              ).length > 0 && (
+                <div className="text-xs text-blue-600 mt-2">
+                  + {Object.entries(subscription.features).filter(([key, value]) => 
+                    !['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].includes(key) && value
+                  ).length} premium features
+                </div>
+              )}
             </div>
             
             <div className="flex justify-between items-center">
@@ -225,10 +253,18 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
     isPopular: subscription?.isPopular || false,
     sortOrder: subscription?.sortOrder || 0,
     features: subscription?.features || {
+      // Core School Management Features (matching sidebar navigation)
+      dashboard: true,
+      teachers: true,
+      students: true,
+      classes: true,
       attendance: true,
       homework: true,
       events: true,
+      complaints: true,
+      fees: true,
       reports: true,
+      // Additional Premium Features
       smsNotifications: false,
       emailNotifications: true,
       mobileApp: false,
@@ -236,11 +272,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
       apiAccess: false,
       advancedReports: false,
       bulkImport: false,
-      parentPortal: true,
-      onlineExams: false,
-      feeManagement: false,
-      libraryManagement: false,
-      transportManagement: false
+      parentPortal: true
     }
   });
   const [loading, setLoading] = useState(false);
@@ -252,8 +284,46 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
     setErrors({})
 
     try {
-      await onSubmit(formData)
+      // Debug: Log the form data being sent
+      console.log('Submitting subscription data:', JSON.stringify(formData, null, 2))
+      
+      // Validate required fields on frontend
+      if (!formData.name || formData.name.length < 2) {
+        throw new Error('Name must be at least 2 characters long')
+      }
+      if (formData.price < 0) {
+        throw new Error('Price must be non-negative')
+      }
+      if (!formData.currency || formData.currency.length !== 3) {
+        throw new Error('Currency must be 3 characters long')
+      }
+      
+      // Sanitize data types to ensure they match backend expectations
+      const sanitizedData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        trialDays: parseInt(formData.trialDays),
+        maxStudents: parseInt(formData.maxStudents),
+        maxTeachers: parseInt(formData.maxTeachers),
+        maxClasses: parseInt(formData.maxClasses),
+        sortOrder: parseInt(formData.sortOrder),
+        isActive: Boolean(formData.isActive),
+        isPopular: Boolean(formData.isPopular)
+      }
+      
+      // Remove planType from update data (it's not allowed to be changed)
+      if (subscription) {
+        delete sanitizedData.planType;
+        console.log('Editing existing subscription - planType excluded from update');
+      }
+      
+      console.log('Sanitized data:', JSON.stringify(sanitizedData, null, 2))
+      
+      await onSubmit(sanitizedData)
     } catch (error) {
+      console.error('Subscription submission error:', error)
+      console.error('Error response:', error.response?.data)
+      
       if (error.response?.data?.details) {
         const newErrors = {}
         error.response.data.details.forEach(detail => {
@@ -262,7 +332,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
         })
         setErrors(newErrors)
       } else {
-        setErrors({ general: error.response?.data?.error || 'Failed to save subscription' })
+        setErrors({ general: error.response?.data?.error || error.message || 'Failed to save subscription' })
       }
     } finally {
       setLoading(false)
@@ -449,20 +519,45 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Features
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {Object.entries(formData.features).map(([feature, enabled]) => (
-                <label key={feature} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={(e) => handleFeatureChange(feature, e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">
-                    {feature.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                  </span>
-                </label>
-              ))}
+            
+            {/* Core School Management Features */}
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Core School Management Features</h4>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-3 bg-blue-50 rounded-lg">
+                {['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].map((feature) => (
+                  <label key={feature} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.features[feature] || false}
+                      onChange={(e) => handleFeatureChange(feature, e.target.checked)}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700 capitalize">
+                      {feature.replace(/([A-Z])/g, ' $1')}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Premium Features */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Premium Features</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-yellow-50 rounded-lg">
+                {['smsNotifications', 'emailNotifications', 'mobileApp', 'customBranding', 'apiAccess', 'advancedReports', 'bulkImport', 'parentPortal'].map((feature) => (
+                  <label key={feature} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.features[feature] || false}
+                      onChange={(e) => handleFeatureChange(feature, e.target.checked)}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">
+                      {feature.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 

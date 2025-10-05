@@ -38,7 +38,14 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       window.location.href = '/login'
     } else if (error.response?.status === 403) {
-      toast.error('Access denied')
+      // Handle feature access errors specifically
+      if (error.response?.data?.code === 'FEATURE_NOT_AVAILABLE') {
+        toast.error(`Feature not available: ${error.response.data.feature}`)
+      } else if (error.response?.data?.code === 'SUBSCRIPTION_INACTIVE') {
+        toast.error('Your subscription is not active')
+      } else {
+        toast.error('Access denied')
+      }
     } else if (error.response?.status >= 500) {
       toast.error('Server error. Please try again later.')
     }
@@ -52,6 +59,8 @@ export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   logout: () => api.post('/auth/logout'),
   getProfile: () => api.get('/auth/me'),
+  updateProfile: (data) => api.put('/auth/me', data),
+  changePassword: (data) => api.put('/auth/change-password', data),
   sendOTP: (phone) => api.post('/auth/send-otp', { phone }),
   otpLogin: (data) => api.post('/auth/otp-login', data)
 }

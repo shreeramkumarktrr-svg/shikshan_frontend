@@ -11,6 +11,7 @@ import Login from './pages/auth/Login'
 import Dashboard from './pages/Dashboard'
 import Schools from './pages/super-admin/Schools'
 import SchoolDetail from './pages/super-admin/SchoolDetail'
+import InterestedVisitors from './pages/super-admin/InterestedVisitors'
 import Subscriptions from './pages/super-admin/Subscriptions'
 import Payments from './pages/super-admin/Payments'
 import Analytics from './pages/super-admin/Analytics'
@@ -24,6 +25,8 @@ import Events from './pages/Events'
 import Complaints from './pages/Complaints'
 import Fees from './pages/Fees'
 import Profile from './pages/Profile'
+import SubscriptionUpgrade from './pages/SubscriptionUpgrade'
+import Debug from './pages/Debug'
 
 function App() {
   return (
@@ -54,6 +57,11 @@ function App() {
             <Route path="schools/:id" element={
               <ProtectedRoute roles={['super_admin']}>
                 <SchoolDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="interested-visitors" element={
+              <ProtectedRoute roles={['super_admin']}>
+                <InterestedVisitors />
               </ProtectedRoute>
             } />
             <Route path="subscriptions" element={
@@ -102,6 +110,8 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="complaints" element={<Complaints />} />
             <Route path="fees" element={<Fees />} />
+            <Route path="subscription/upgrade" element={<SubscriptionUpgrade />} />
+            <Route path="debug" element={<Debug />} />
           </Route>
           
           {/* Catch all route */}

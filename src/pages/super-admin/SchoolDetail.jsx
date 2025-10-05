@@ -63,6 +63,19 @@ function SchoolDetail() {
     }
   }
 
+  const handleUpdateSchool = async (schoolData) => {
+    try {
+      console.log('Sending school data:', schoolData)
+      await api.put(`/schools/${id}`, schoolData)
+      setShowEditModal(false)
+      fetchSchoolDetails()
+    } catch (error) {
+      console.error('Error updating school:', error)
+      console.error('Error response:', error.response?.data)
+      throw error
+    }
+  }
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
@@ -330,8 +343,13 @@ function SchoolDetail() {
               <div>
                 <p className="text-sm text-gray-500">Plan</p>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanColor(school.subscriptionPlan)}`}>
-                  {school.subscriptionPlan}
+                  {school.subscription?.name || school.subscriptionPlan}
                 </span>
+                {school.subscription && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    ₹{school.subscription.price}/{school.subscription.billingCycle}
+                  </p>
+                )}
               </div>
               {school.subscriptionExpiresAt && (
                 <div>
@@ -408,6 +426,14 @@ function SchoolDetail() {
           onSubmit={handleUpdateSubscription}
         />
       )}
+      
+      {showEditModal && (
+        <EditSchoolModal
+          school={school}
+          onClose={() => setShowEditModal(false)}
+          onSubmit={handleUpdateSchool}
+        />
+      )}
     </div>
   )
 }
@@ -416,7 +442,7 @@ function SchoolDetail() {
 function SubscriptionModal({ school, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     subscriptionStatus: school.subscriptionStatus,
-    subscriptionPlan: school.subscriptionPlan,
+    subscriptionId: school.subscriptionId,
     subscriptionExpiresAt: school.subscriptionExpiresAt ? 
       new Date(school.subscriptionExpiresAt).toISOString().split('T')[0] : '',
     maxStudents: school.maxStudents,
@@ -424,6 +450,32 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [subscriptions, setSubscriptions] = useState([])
+
+  useEffect(() => {
+    fetchSubscriptions()
+  }, [])
+
+  const fetchSubscriptions = async () => {
+    try {
+      const response = await api.get('/subscriptions/public')
+      setSubscriptions(response.data.subscriptions)
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error)
+    }
+  }
+
+  const handleSubscriptionChange = (subscriptionId) => {
+    const selectedSubscription = subscriptions.find(s => s.id === subscriptionId)
+    if (selectedSubscription) {
+      setFormData(prev => ({
+        ...prev,
+        subscriptionId,
+        maxStudents: selectedSubscription.maxStudents,
+        maxTeachers: selectedSubscription.maxTeachers
+      }))
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -469,16 +521,20 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Plan
+              Subscription Plan
             </label>
             <select
-              value={formData.subscriptionPlan}
-              onChange={(e) => setFormData({ ...formData, subscriptionPlan: e.target.value })}
+              value={formData.subscriptionId}
+              onChange={(e) => handleSubscriptionChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              required
             >
-              <option value="basic">Basic</option>
-              <option value="standard">Standard</option>
-              <option value="premium">Premium</option>
+              <option value="">Select a plan</option>
+              {subscriptions.map((subscription) => (
+                <option key={subscription.id} value={subscription.id}>
+                  {subscription.name} - ₹{subscription.price}/{subscription.billingCycle}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -537,6 +593,211 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
               disabled={loading}
             >
               {loading ? 'Updating...' : 'Update Subscription'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// Edit School Modal
+function EditSchoolModal({ school, onClose, onSubmit }) {
+  const [formData, setFormData] = useState({
+    name: school.name || '',
+    phone: school.phone || '',
+    address: school.address || '',
+    website: school.website || '',
+    establishedYear: school.establishedYear || '',
+    academicYear: school.academicYear || '',
+    timezone: school.timezone || '',
+    locale: school.locale || '',
+    currency: school.currency || ''
+  })
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({})
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setErrors({})
+
+    try {
+      await onSubmit(formData)
+    } catch (error) {
+      if (error.response?.data?.details) {
+        const newErrors = {}
+        error.response.data.details.forEach(detail => {
+          const field = detail.split(' ')[0].replace('"', '').replace('"', '')
+          newErrors[field] = detail
+        })
+        setErrors(newErrors)
+      } else {
+        setErrors({ general: error.response?.data?.error || 'Failed to update school' })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">Edit School Information</h2>
+        
+        {errors.general && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {errors.general}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                School Name *
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Established Year
+              </label>
+              <input
+                type="number"
+                min="1800"
+                max={new Date().getFullYear()}
+                value={formData.establishedYear}
+                onChange={(e) => setFormData({ ...formData, establishedYear: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Academic Year
+              </label>
+              <input
+                type="text"
+                value={formData.academicYear}
+                onChange={(e) => setFormData({ ...formData, academicYear: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                placeholder="2024-25"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Website
+            </label>
+            <input
+              type="url"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              placeholder="https://example.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <textarea
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Timezone
+              </label>
+              <select
+                value={formData.timezone}
+                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="Asia/Kolkata">Asia/Kolkata</option>
+                <option value="Asia/Mumbai">Asia/Mumbai</option>
+                <option value="Asia/Delhi">Asia/Delhi</option>
+                <option value="UTC">UTC</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Language
+              </label>
+              <select
+                value={formData.locale}
+                onChange={(e) => setFormData({ ...formData, locale: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="mr">Marathi</option>
+                <option value="gu">Gujarati</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Currency
+              </label>
+              <select
+                value={formData.currency}
+                onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="INR">INR (₹)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'Updating...' : 'Update School'}
             </button>
           </div>
         </form>
