@@ -21,7 +21,7 @@ function ContactModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.schoolName.trim()) {
       toast.error('Please fill in all required fields')
       return
@@ -31,10 +31,10 @@ function ContactModal({ isOpen, onClose }) {
 
     try {
       const response = await contactAPI.send(formData)
-      
+
       if (response.data.success) {
         toast.success('Your message has been sent successfully.')
-        
+
         // Reset form
         setFormData({
           name: '',
@@ -44,7 +44,7 @@ function ContactModal({ isOpen, onClose }) {
           designation: '',
           description: ''
         })
-        
+
         onClose()
       } else {
         toast.error(response.data.error || 'Failed to send message. Please try again.')

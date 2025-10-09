@@ -1,58 +1,63 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
+import { useSchool } from '../contexts/SchoolContext'
 import { usersAPI, classesAPI } from '../utils/api'
+import api from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   PlusIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  AcademicCapIcon,
-  EnvelopeIcon,
-  PhoneIcon,
   PencilIcon,
   TrashIcon,
   EyeIcon,
   KeyIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../components/LoadingSpinner'
 import UserModal from '../components/UserModal'
 import UserDetailModal from '../components/UserDetailModal'
 import PasswordModal from '../components/PasswordModal'
-import ResponsiveCard, { CardGrid, StatCard } from '../components/ResponsiveCard'
-import { FormButton } from '../components/ResponsiveForm'
 import PageHeader from '../components/PageHeader'
 
 function Teachers() {
-  const { hasRole } = useAuth()
+  const { hasRole, user } = useAuth()
+  const { selectedSchool } = useSchool()
   const queryClient = useQueryClient()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [selectedTeacher, setSelectedTeacher] = useState(null)
-  const [filters, setFilters] = useState({
-    search: '',
-    active: '',
-    hasClass: ''
-  })
+  const [filters, setFilters] = useState({ search: '', active: '', hasClass: '' })
   const [page, setPage] = useState(1)
 
-  // Fetch teachers
+  // 🔹 Get School ID
+  const getCurrentSchoolId = () => {
+    if (user?.role === 'super_admin') {
+      return selectedSchool?.id || user?.school?.id || null
+    }
+    return user?.schoolId || user?.school?.id || null
+  }
+
+  // 🔹 Fetch Teachers
   const { data: teachersData, isLoading, error } = useQuery({
-    queryKey: ['teachers', filters, page],
-    queryFn: () => usersAPI.getAll({ 
-      ...filters, 
-      role: 'teacher',
-      page, 
-      limit: 10 
-    }),
+    queryKey: ['teachers', filters, page, getCurrentSchoolId()],
+    queryFn: () => {
+      const params = { ...filters, role: 'teacher', page, limit: 10 }
+      if (user?.role === 'super_admin' && getCurrentSchoolId()) {
+        params.schoolId = getCurrentSchoolId()
+      }
+      return usersAPI.getAll(params)
+    },
     keepPreviousData: true,
     retry: 1,
-    retryDelay: 1000
+    retryDelay: 1000,
+    enabled: !!getCurrentSchoolId()
   })
 
-  // Fetch classes for assignment
+  // 🔹 Fetch Classes
   const { data: classesData } = useQuery({
     queryKey: ['classes'],
     queryFn: () => classesAPI.getAll(),
@@ -60,9 +65,15 @@ function Teachers() {
     retryDelay: 1000
   })
 
-  // Create teacher mutation
+  // 🔹 Create Teacher
   const createTeacherMutation = useMutation({
-    mutationFn: (data) => usersAPI.create({ ...data, role: 'teacher' }),
+    mutationFn: (data) => {
+      const createData = { ...data, role: 'teacher' }
+      if (user?.role === 'super_admin' && getCurrentSchoolId()) {
+        return api.post('/users', createData, { params: { schoolId: getCurrentSchoolId() } })
+      }
+      return usersAPI.create(createData)
+    },
     onSuccess: (response) => {
       queryClient.invalidateQueries(['teachers'])
       setIsCreateModalOpen(false)
@@ -73,7 +84,7 @@ function Teachers() {
     }
   })
 
-  // Update teacher mutation
+  // 🔹 Update Teacher
   const updateTeacherMutation = useMutation({
     mutationFn: ({ id, data }) => usersAPI.update(id, data),
     onSuccess: () => {
@@ -81,24 +92,20 @@ function Teachers() {
       setSelectedTeacher(null)
       toast.success('Teacher updated successfully!')
     },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to update teacher')
-    }
+    onError: (error) => toast.error(error.response?.data?.error || 'Failed to update teacher')
   })
 
-  // Delete teacher mutation
+  // 🔹 Delete Teacher
   const deleteTeacherMutation = useMutation({
     mutationFn: usersAPI.delete,
     onSuccess: () => {
       queryClient.invalidateQueries(['teachers'])
       toast.success('Teacher deactivated successfully!')
     },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to deactivate teacher')
-    }
+    onError: (error) => toast.error(error.response?.data?.error || 'Failed to deactivate teacher')
   })
 
-  // Change password mutation
+  // 🔹 Change Password
   const changePasswordMutation = useMutation({
     mutationFn: ({ id, data }) => usersAPI.changePassword(id, data),
     onSuccess: () => {
@@ -106,398 +113,225 @@ function Teachers() {
       setSelectedTeacher(null)
       toast.success('Password changed successfully!')
     },
-    onError: (error) => {
-      toast.error(error.response?.data?.error || 'Failed to change password')
-    }
+    onError: (error) => toast.error(error.response?.data?.error || 'Failed to change password')
   })
 
-  const handleCreateTeacher = (teacherData) => {
-    createTeacherMutation.mutate(teacherData)
+  // 🔹 Handlers
+  const handleCreateTeacher = (data) => createTeacherMutation.mutate(data)
+  const handleUpdateTeacher = (data) => updateTeacherMutation.mutate({ id: selectedTeacher.id, data })
+  const handleDeleteTeacher = (id) => {
+    if (window.confirm('Are you sure you want to deactivate this teacher?')) deleteTeacherMutation.mutate(id)
   }
-
-  const handleUpdateTeacher = (teacherData) => {
-    updateTeacherMutation.mutate({
-      id: selectedTeacher.id,
-      data: teacherData
-    })
-  }
-
-  const handleDeleteTeacher = (teacherId) => {
-    if (window.confirm('Are you sure you want to deactivate this teacher?')) {
-      deleteTeacherMutation.mutate(teacherId)
-    }
-  }
-
-  const handleViewTeacher = (teacher) => {
-    setSelectedTeacher(teacher)
-    setIsDetailModalOpen(true)
-  }
-
-  const handleEditTeacher = (teacher) => {
-    setSelectedTeacher(teacher)
-    setIsCreateModalOpen(true)
-  }
-
-  const handleChangePassword = (teacher) => {
-    setSelectedTeacher(teacher)
-    setIsPasswordModalOpen(true)
-  }
-
-  const handlePasswordChange = (passwordData) => {
-    changePasswordMutation.mutate({
-      id: selectedTeacher.id,
-      data: passwordData
-    })
-  }
+  const handleViewTeacher = (t) => { setSelectedTeacher(t); setIsDetailModalOpen(true) }
+  const handleEditTeacher = (t) => { setSelectedTeacher(t); setIsCreateModalOpen(true) }
+  const handleChangePassword = (t) => { setSelectedTeacher(t); setIsPasswordModalOpen(true) }
+  const handlePasswordChange = (data) => changePasswordMutation.mutate({ id: selectedTeacher.id, data })
 
   const canManageTeachers = hasRole(['school_admin', 'principal'])
+  const currentSchoolId = getCurrentSchoolId()
 
+  // 🔹 Loading & Errors
   if (isLoading) return <LoadingSpinner />
-  
-  if (error) {
+
+  if (user?.role === 'super_admin' && !currentSchoolId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Backend Server Not Available</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            The API server is not running. Please start the backend server.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Retry Connection
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-white shadow rounded-lg">
+          <h3 className="text-lg font-semibold">Select a School</h3>
+          <p className="text-gray-500 mb-4">Please select a school to manage teachers.</p>
+          <button onClick={() => (window.location.href = '/app/schools')} className="bg-blue-600 text-white px-4 py-2 rounded">
+            Go to Schools
           </button>
         </div>
       </div>
     )
   }
 
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-white shadow rounded-lg">
+          <h3 className="text-lg font-semibold text-red-600">Backend Not Reachable</h3>
+          <p className="text-gray-500 mb-4">Please ensure the backend server is running.</p>
+          <button onClick={() => window.location.reload()} className="bg-blue-600 text-white px-4 py-2 rounded">
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // 🔹 Data Extract
   const teachers = teachersData?.data?.users || []
   const pagination = teachersData?.data?.pagination || {}
   const classes = Array.isArray(classesData?.data?.classes) ? classesData.data.classes : []
+  const teachersCount = teachers.length
 
+  // 🔹 UI Render
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <PageHeader
-        title="Teachers Management"
-        subtitle="Manage teachers and staff members"
-        actions={canManageTeachers ? [
-          {
-            label: 'Add Teacher',
-            variant: 'primary',
-            icon: <PlusIcon className="h-5 w-5" />,
-            onClick: () => {
-              setSelectedTeacher(null)
-              setIsCreateModalOpen(true)
-            },
-            primary: true
-          }
-        ] : []}
-      />
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card">
-          <div className="card-body text-center">
-            <AcademicCapIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{teachers.length}</div>
-            <div className="text-sm text-gray-500">Total Teachers</div>
+      {user?.role === 'super_admin' && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <h4 className="text-sm font-medium text-yellow-800">Debug Info</h4>
+          <div className="text-xs text-yellow-700 mt-2 space-y-1">
+            <div>Current School ID: {currentSchoolId || 'None'}</div>
+            <div>Selected School: {selectedSchool?.name || 'None'}</div>
+            <div>Teachers Found: {teachersCount}</div>
           </div>
-        </div>
-        <div className="card">
-          <div className="card-body text-center">
-            <UserCircleIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {teachers.filter(t => t.isActive).length}
-            </div>
-            <div className="text-sm text-gray-500">Active Teachers</div>
-          </div>
-        </div>
-        <div className="card">
-          <div className="card-body text-center">
-            <AcademicCapIcon className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {teachers.filter(t => t.classTeacher).length}
-            </div>
-            <div className="text-sm text-gray-500">Class Teachers</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filters and Search */}
-      <div className="card">
-        <div className="card-body">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1">
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search teachers..."
-                  value={filters.search}
-                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  className="input pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Filters */}
-            <div className="flex items-center space-x-4">
-              <FunnelIcon className="h-5 w-5 text-gray-400" />
-              
-              <select
-                value={filters.active}
-                onChange={(e) => setFilters({ ...filters, active: e.target.value })}
-                className="input w-32"
-              >
-                <option value="">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
-
-              <select
-                value={filters.hasClass}
-                onChange={(e) => setFilters({ ...filters, hasClass: e.target.value })}
-                className="input w-40"
-              >
-                <option value="">All Teachers</option>
-                <option value="true">Class Teachers</option>
-                <option value="false">Subject Teachers</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Teachers List */}
-      <div className="card">
-        <div className="card-body p-0">
-          {teachers.length === 0 ? (
-            <div className="text-center py-12">
-              <AcademicCapIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No teachers found</h3>
-              <p className="text-gray-500">
-                {canManageTeachers 
-                  ? "Add your first teacher to get started."
-                  : "No teachers match your current filters."
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Teacher
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Class Assignment
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Joined
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {teachers.map((teacher) => (
-                    <tr key={teacher.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            {teacher.profilePic ? (
-                              <img
-                                className="h-10 w-10 rounded-full"
-                                src={teacher.profilePic}
-                                alt=""
-                              />
-                            ) : (
-                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <AcademicCapIcon className="h-6 w-6 text-blue-600" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {teacher.firstName} {teacher.lastName}
-                            </div>
-                            {teacher.employeeId && (
-                              <div className="text-sm text-gray-500">
-                                ID: {teacher.employeeId}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="space-y-1">
-                          {teacher.email && (
-                            <div className="flex items-center">
-                              <EnvelopeIcon className="h-4 w-4 mr-2" />
-                              {teacher.email}
-                            </div>
-                          )}
-                          <div className="flex items-center">
-                            <PhoneIcon className="h-4 w-4 mr-2" />
-                            {teacher.phone}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {teacher.classTeacher ? (
-                          <span className="badge badge-primary">
-                            Class Teacher - {teacher.classTeacher}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">Subject Teacher</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`badge ${
-                          teacher.isActive 
-                            ? 'badge-success' 
-                            : 'badge-danger'
-                        }`}>
-                          {teacher.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(teacher.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => handleViewTeacher(teacher)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                            title="View Details"
-                          >
-                            <EyeIcon className="h-5 w-5" />
-                          </button>
-
-                          {canManageTeachers && (
-                            <>
-                              <button
-                                onClick={() => handleEditTeacher(teacher)}
-                                className="text-gray-400 hover:text-blue-600 transition-colors"
-                                title="Edit Teacher"
-                              >
-                                <PencilIcon className="h-5 w-5" />
-                              </button>
-                              
-                              <button
-                                onClick={() => handleChangePassword(teacher)}
-                                className="text-gray-400 hover:text-green-600 transition-colors"
-                                title="Change Password"
-                              >
-                                <KeyIcon className="h-5 w-5" />
-                              </button>
-                              
-                              <button
-                                onClick={() => handleDeleteTeacher(teacher.id)}
-                                className="text-gray-400 hover:text-red-600 transition-colors"
-                                title="Deactivate Teacher"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Pagination */}
-      {pagination.pages > 1 && (
-        <div className="flex justify-center space-x-2">
-          <button
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-            className="btn-outline disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="px-4 py-2 text-sm text-gray-700">
-            Page {page} of {pagination.pages}
-          </span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={page === pagination.pages}
-            className="btn-outline disabled:opacity-50"
-          >
-            Next
-          </button>
         </div>
       )}
 
-      {/* Modals */}
+      <PageHeader
+        title="Teachers Management"
+        subtitle="Manage all teachers and staff members"
+        actions={
+          canManageTeachers
+            ? [
+                {
+                  label: 'Add Teacher',
+                  variant: 'primary',
+                  icon: <PlusIcon className="h-5 w-5" />,
+                  onClick: () => {
+                    setSelectedTeacher(null)
+                    setIsCreateModalOpen(true)
+                  }
+                }
+              ]
+            : []
+        }
+      />
+
+      {/* 🔹 Stats Section */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow flex items-center gap-3">
+          <UserCircleIcon className="h-6 w-6 text-blue-600" />
+          <div>
+            <p className="text-sm text-gray-500">Total Teachers</p>
+            <p className="text-lg font-semibold">{teachersCount}</p>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow flex items-center gap-3">
+          <AcademicCapIcon className="h-6 w-6 text-green-600" />
+          <div>
+            <p className="text-sm text-gray-500">Active</p>
+            <p className="text-lg font-semibold">
+              {teachers.filter((t) => t.isActive).length}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 🔹 Filters */}
+      <div className="bg-white p-4 rounded-lg shadow flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 w-full">
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search teacher..."
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            className="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <button
+          onClick={() => queryClient.invalidateQueries(['teachers'])}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
+        >
+          <FunnelIcon className="h-5 w-5" /> Filter
+        </button>
+      </div>
+
+      {/* 🔹 Teachers Table */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Name</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Email</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Phone</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500">Status</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {teachers.map((t) => (
+              <tr key={t.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{t.name}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{t.email}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">{t.phone || '-'}</td>
+                <td className="px-4 py-3 text-sm">
+                  {t.isActive ? (
+                    <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs">Active</span>
+                  ) : (
+                    <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs">Inactive</span>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-right space-x-2">
+                  <button onClick={() => handleViewTeacher(t)} className="text-gray-500 hover:text-blue-600">
+                    <EyeIcon className="h-5 w-5 inline" />
+                  </button>
+                  {canManageTeachers && (
+                    <>
+                      <button onClick={() => handleEditTeacher(t)} className="text-gray-500 hover:text-green-600">
+                        <PencilIcon className="h-5 w-5 inline" />
+                      </button>
+                      <button onClick={() => handleChangePassword(t)} className="text-gray-500 hover:text-orange-600">
+                        <KeyIcon className="h-5 w-5 inline" />
+                      </button>
+                      <button onClick={() => handleDeleteTeacher(t.id)} className="text-gray-500 hover:text-red-600">
+                        <TrashIcon className="h-5 w-5 inline" />
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 🔹 Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span className="text-sm text-gray-600">
+          Page {pagination.currentPage || page} of {pagination.totalPages || 1}
+        </span>
+        <button
+          disabled={page >= (pagination.totalPages || 1)}
+          onClick={() => setPage(page + 1)}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* 🔹 Modals */}
       {isCreateModalOpen && (
         <UserModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
           user={selectedTeacher}
-          onSave={selectedTeacher ? handleUpdateTeacher : handleCreateTeacher}
-          onClose={() => {
-            setIsCreateModalOpen(false)
-            setSelectedTeacher(null)
-          }}
-          isLoading={createTeacherMutation.isLoading || updateTeacherMutation.isLoading}
-          userType="teacher"
+          onSubmit={selectedTeacher ? handleUpdateTeacher : handleCreateTeacher}
           classes={classes}
         />
       )}
 
-      {isDetailModalOpen && selectedTeacher && (
-        <UserDetailModal
-          user={selectedTeacher}
-          onClose={() => {
-            setIsDetailModalOpen(false)
-            setSelectedTeacher(null)
-          }}
-          onEdit={canManageTeachers ? () => {
-            setIsDetailModalOpen(false)
-            handleEditTeacher(selectedTeacher)
-          } : null}
-          onChangePassword={canManageTeachers ? () => {
-            setIsDetailModalOpen(false)
-            handleChangePassword(selectedTeacher)
-          } : null}
-          onDelete={canManageTeachers ? () => {
-            setIsDetailModalOpen(false)
-            handleDeleteTeacher(selectedTeacher.id)
-          } : null}
-        />
+      {isDetailModalOpen && (
+        <UserDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} user={selectedTeacher} />
       )}
 
-      {isPasswordModalOpen && selectedTeacher && (
+      {isPasswordModalOpen && (
         <PasswordModal
+          isOpen={isPasswordModalOpen}
+          onClose={() => setIsPasswordModalOpen(false)}
+          onSubmit={handlePasswordChange}
           user={selectedTeacher}
-          onSave={handlePasswordChange}
-          onClose={() => {
-            setIsPasswordModalOpen(false)
-            setSelectedTeacher(null)
-          }}
-          isLoading={changePasswordMutation.isLoading}
         />
       )}
     </div>

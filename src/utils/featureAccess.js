@@ -47,7 +47,6 @@ export const getSchoolFeatures = async (schoolId = null) => {
     }
     
     if (!targetSchoolId) {
-      console.error('❌ No school context available for user:', user);
       console.error('User role:', user.role);
       console.error('User schoolId:', user.schoolId);
       
@@ -86,19 +85,12 @@ export const getSchoolFeatures = async (schoolId = null) => {
     const cacheKey = `features_${targetSchoolId}`;
     if (featuresCache && featuresCache.schoolId === targetSchoolId && 
         cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
-      console.log('📋 Using cached features for school:', targetSchoolId);
       return featuresCache;
     }
 
-    console.log('🔄 Fetching fresh features for school:', targetSchoolId);
-    
     // Add cache-busting parameter to force fresh data
     const cacheBuster = Date.now();
     const response = await api.get(`/schools/${targetSchoolId}/features?_t=${cacheBuster}`);
-    
-    console.log('📥 Received features:', response.data.features);
-    console.log('📋 Available features:', response.data.features.features.available);
-    console.log('❌ Unavailable features:', response.data.features.features.unavailable);
     
     // Update cache
     featuresCache = response.data.features;
@@ -201,18 +193,12 @@ export const refreshFeatures = async (schoolId = null) => {
  * Debug function for browser console
  */
 export const debugFeatureAccess = async () => {
-  console.log('🔍 Debug Feature Access');
-  
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  console.log('👤 Current user:', user);
-  
   if (user.role === 'super_admin') {
-    console.log('🔑 Super admin - has access to all features');
     return;
   }
   
   if (!user.schoolId) {
-    console.log('❌ No school ID found');
     return;
   }
   
@@ -220,20 +206,14 @@ export const debugFeatureAccess = async () => {
     clearFeaturesCache();
     const features = await getSchoolFeatures();
     
-    console.log('🏫 School features:', features);
-    console.log('✅ Available features:', features.features.available);
-    console.log('❌ Unavailable features:', features.features.unavailable);
-    
     // Test specific features
     const testFeatures = ['attendance', 'homework', 'events', 'reports'];
     for (const feature of testFeatures) {
       const hasAccess = await hasFeature(feature);
-      console.log(`${hasAccess ? '✅' : '❌'} ${feature}: ${hasAccess ? 'Available' : 'Not Available'}`);
-    }
+      }
     
   } catch (error) {
-    console.error('❌ Error debugging features:', error);
-  }
+    }
 };
 
 // Make debug function available globally

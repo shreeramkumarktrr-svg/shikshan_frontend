@@ -67,11 +67,8 @@ function InterestedVisitors() {
 
       const response = await api.get(`/contact/inquiries?${params}`)
       
-      console.log('📋 Inquiries API Response:', response.data)
-      
       if (response.data.success) {
         const inquiries = response.data.data.inquiries || []
-        console.log('📋 Inquiries data:', inquiries)
         setInquiries(inquiries)
         setTotalPages(response.data.data.pagination?.totalPages || 1)
         setTotalInquiries(response.data.data.pagination?.total || 0)

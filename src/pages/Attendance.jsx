@@ -9,6 +9,8 @@ import {
 import StaffAttendance from '../components/StaffAttendance'
 import StudentAttendance from '../components/StudentAttendance'
 import AttendanceReports from '../components/AttendanceReports'
+import FeatureGuard from '../components/FeatureGuard'
+import { FEATURES } from '../utils/featureAccess'
 
 function Attendance() {
   const { hasRole } = useAuth()
@@ -43,15 +45,20 @@ function Attendance() {
   )
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
+    <FeatureGuard 
+      feature={FEATURES.ATTENDANCE} 
+      mode="show-message"
+      showUpgrade={true}
+    >
+        <div className="space-y-6">
+          {/* Header */}
+          <div>
         <h1 className="text-2xl font-bold text-gray-900">Attendance Management</h1>
         <p className="text-gray-600">Mark and track attendance for students and staff</p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
           {visibleTabs.map((tab) => {
             const Icon = tab.icon
@@ -79,13 +86,14 @@ function Attendance() {
         </nav>
       </div>
 
-      {/* Tab Content */}
-      <div className="mt-6">
+          {/* Tab Content */}
+          <div className="mt-6">
         {activeTab === 'students' && <StudentAttendance />}
         {activeTab === 'staff' && <StaffAttendance />}
         {activeTab === 'reports' && hasRole(['school_admin', 'principal']) && <AttendanceReports />}
-      </div>
-    </div>
+          </div>
+        </div>
+    </FeatureGuard>
   )
 }
 

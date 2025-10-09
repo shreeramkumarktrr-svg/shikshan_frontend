@@ -34,7 +34,6 @@ function Complaints() {
   const { data: complaintsData, isLoading, error } = useQuery({
     queryKey: ['complaints', currentPage, filters],
     queryFn: async () => {
-      console.log('🔄 Making complaints API call...')
       console.log('Query params:', { page: currentPage, limit: 10, ...filters })
       
       try {
@@ -43,20 +42,16 @@ function Complaints() {
           limit: 10,
           ...filters
         })
-        console.log('✅ API call successful:', result)
         return result
       } catch (error) {
-        console.error('❌ API call failed:', error)
         console.error('Error response:', error.response)
         throw error
       }
     },
     onSuccess: (data) => {
-      console.log('✅ Complaints query success:', data)
-    },
+      },
     onError: (error) => {
-      console.error('❌ Complaints query error:', error)
-    },
+      },
     retry: false,
     refetchOnWindowFocus: false
   })
@@ -66,17 +61,14 @@ function Complaints() {
     queryKey: ['complaint-stats'],
     queryFn: () => complaintsAPI.getStats(),
     onSuccess: (data) => {
-      console.log('✅ Stats query success:', data)
-    },
+      },
     onError: (error) => {
-      console.error('❌ Stats query error:', error)
-    }
+      }
   })
 
   const complaints = complaintsData?.data?.data?.complaints || []
   const pagination = complaintsData?.data?.data?.pagination || {}
   
-  console.log('🔍 Debug info:')
   console.log('complaintsData:', complaintsData)
   console.log('complaints array:', complaints)
   console.log('complaints length:', complaints.length)

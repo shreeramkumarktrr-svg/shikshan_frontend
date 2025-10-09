@@ -38,7 +38,6 @@ function Subscriptions() {
 
   const handleUpdateSubscription = async (subscriptionData) => {
     try {
-      console.log('Updating subscription ID:', editingSubscription.id)
       console.log('Update data:', JSON.stringify(subscriptionData, null, 2))
       
       // Validate that planType is not included in update data
@@ -48,8 +47,6 @@ function Subscriptions() {
       }
       
       const response = await api.put(`/subscriptions/${editingSubscription.id}`, subscriptionData)
-      console.log('Update response:', response.data)
-      
       setShowModal(false)
       setEditingSubscription(null)
       fetchSubscriptions()
@@ -284,7 +281,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
     setErrors({})
 
     try {
-      // Debug: Log the form data being sent
+      
       console.log('Submitting subscription data:', JSON.stringify(formData, null, 2))
       
       // Validate required fields on frontend

@@ -25,10 +25,15 @@ function SchoolDetail() {
   const [loading, setLoading] = useState(true)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
+  const [showSchoolAdminModal, setShowSchoolAdminModal] = useState(false)
+  const [showPrincipalModal, setShowPrincipalModal] = useState(false)
+  const [schoolAdminUser, setSchoolAdminUser] = useState(null)
+  const [principalUser, setPrincipalUser] = useState(null)
 
   useEffect(() => {
     fetchSchoolDetails()
     fetchSchoolStats()
+    fetchSchoolUsers()
   }, [id])
 
   const fetchSchoolDetails = async () => {
@@ -51,6 +56,24 @@ function SchoolDetail() {
     }
   }
 
+  const fetchSchoolUsers = async () => {
+    try {
+      // Fetch school admin
+      const adminResponse = await api.get(`/users?schoolId=${id}&role=school_admin`)
+      if (adminResponse.data.users.length > 0) {
+        setSchoolAdminUser(adminResponse.data.users[0])
+      }
+
+      // Fetch principal
+      const principalResponse = await api.get(`/users?schoolId=${id}&role=principal`)
+      if (principalResponse.data.users.length > 0) {
+        setPrincipalUser(principalResponse.data.users[0])
+      }
+    } catch (error) {
+      console.error('Error fetching school users:', error)
+    }
+  }
+
   const handleUpdateSubscription = async (subscriptionData) => {
     try {
       await api.put(`/schools/${id}/subscription`, subscriptionData)
@@ -65,13 +88,58 @@ function SchoolDetail() {
 
   const handleUpdateSchool = async (schoolData) => {
     try {
-      console.log('Sending school data:', schoolData)
       await api.put(`/schools/${id}`, schoolData)
       setShowEditModal(false)
       fetchSchoolDetails()
     } catch (error) {
       console.error('Error updating school:', error)
       console.error('Error response:', error.response?.data)
+      throw error
+    }
+  }
+
+  const handleCreateOrUpdateSchoolAdmin = async (userData) => {
+    try {
+      if (schoolAdminUser) {
+        // Update existing school admin
+        await api.put(`/users/${schoolAdminUser.id}`, userData)
+      } else {
+        // Create new school admin
+        await api.post('/users', {
+          ...userData,
+          role: 'school_admin'
+        }, {
+          params: { schoolId: id }
+        })
+      }
+      setShowSchoolAdminModal(false)
+      fetchSchoolStats()
+      fetchSchoolUsers()
+    } catch (error) {
+      console.error('Error with school admin:', error)
+      throw error
+    }
+  }
+
+  const handleCreateOrUpdatePrincipal = async (userData) => {
+    try {
+      if (principalUser) {
+        // Update existing principal
+        await api.put(`/users/${principalUser.id}`, userData)
+      } else {
+        // Create new principal
+        await api.post('/users', {
+          ...userData,
+          role: 'principal'
+        }, {
+          params: { schoolId: id }
+        })
+      }
+      setShowPrincipalModal(false)
+      fetchSchoolStats()
+      fetchSchoolUsers()
+    } catch (error) {
+      console.error('Error with principal:', error)
       throw error
     }
   }
@@ -384,6 +452,18 @@ function SchoolDetail() {
               >
                 Edit School Info
               </button>
+              <button
+                onClick={() => setShowSchoolAdminModal(true)}
+                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                {stats?.users?.school_admin > 0 ? 'Update School Admin' : 'Create School Admin'}
+              </button>
+              <button
+                onClick={() => setShowPrincipalModal(true)}
+                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                {stats?.users?.principal > 0 ? 'Update Principal' : 'Create Principal'}
+              </button>
               <Link
                 to={`/app/schools/${id}/users`}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
@@ -432,6 +512,26 @@ function SchoolDetail() {
           school={school}
           onClose={() => setShowEditModal(false)}
           onSubmit={handleUpdateSchool}
+        />
+      )}
+
+      {showSchoolAdminModal && (
+        <UserModal
+          title={schoolAdminUser ? 'Update School Admin' : 'Create School Admin'}
+          user={schoolAdminUser}
+          role="school_admin"
+          onClose={() => setShowSchoolAdminModal(false)}
+          onSubmit={handleCreateOrUpdateSchoolAdmin}
+        />
+      )}
+
+      {showPrincipalModal && (
+        <UserModal
+          title={principalUser ? 'Update Principal' : 'Create Principal'}
+          user={principalUser}
+          role="principal"
+          onClose={() => setShowPrincipalModal(false)}
+          onSubmit={handleCreateOrUpdatePrincipal}
         />
       )}
     </div>
@@ -798,6 +898,231 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
               disabled={loading}
             >
               {loading ? 'Updating...' : 'Update School'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// User Management Modal (for School Admin and Principal)
+function UserModal({ title, user, role, onClose, onSubmit }) {
+  const [formData, setFormData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    password: '',
+    dateOfBirth: user?.dateOfBirth || '',
+    gender: user?.gender || '',
+    address: user?.address || '',
+    employeeId: user?.employeeId || ''
+  })
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({})
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setErrors({})
+
+    try {
+      // Remove empty password for updates
+      const submitData = { ...formData }
+      if (user && !submitData.password) {
+        delete submitData.password
+      }
+      
+      await onSubmit(submitData)
+    } catch (error) {
+      if (error.response?.data?.details) {
+        const newErrors = {}
+        error.response.data.details.forEach(detail => {
+          const field = detail.split(' ')[0].replace('"', '').replace('"', '')
+          newErrors[field] = detail
+        })
+        setErrors(newErrors)
+      } else {
+        setErrors({ general: error.response?.data?.error || `Failed to ${user ? 'update' : 'create'} ${role.replace('_', ' ')}` })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4">{title}</h2>
+        
+        {errors.general && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {errors.general}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                First Name *
+              </label>
+              <input
+                type="text"
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.firstName ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Last Name *
+              </label>
+              <input
+                type="text"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.lastName ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone *
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.phone ? 'border-red-500' : 'border-gray-300'
+                }`}
+                required
+              />
+              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {user ? 'New Password (leave blank to keep current)' : 'Password *'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.password ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required={!user}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+              {!user && <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Employee ID
+              </label>
+              <input
+                type="text"
+                value={formData.employeeId}
+                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gender
+              </label>
+              <select
+                value={formData.gender}
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+            <textarea
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? (user ? 'Updating...' : 'Creating...') : (user ? `Update ${role.replace('_', ' ')}` : `Create ${role.replace('_', ' ')}`)}
             </button>
           </div>
         </form>

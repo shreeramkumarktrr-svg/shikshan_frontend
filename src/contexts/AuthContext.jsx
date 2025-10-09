@@ -51,10 +51,12 @@ export function AuthProvider({ children }) {
       if (token) {
         try {
           const response = await authAPI.getProfile()
+          const user = response.data.user
+          localStorage.setItem('user', JSON.stringify(user))
           dispatch({
             type: 'LOGIN_SUCCESS',
             payload: {
-              user: response.data.user,
+              user,
               token
             }
           })
@@ -78,6 +80,7 @@ export function AuthProvider({ children }) {
       
       const { user, token } = response.data
       localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -101,6 +104,7 @@ export function AuthProvider({ children }) {
       
       const { user, token } = response.data
       localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -124,6 +128,7 @@ export function AuthProvider({ children }) {
       console.error('Logout error:', error)
     } finally {
       localStorage.removeItem('token')
+      localStorage.removeItem('user')
       dispatch({ type: 'LOGOUT' })
       toast.success('Logged out successfully')
     }

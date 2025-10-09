@@ -24,6 +24,7 @@ import Homework from './pages/Homework'
 import Events from './pages/Events'
 import Complaints from './pages/Complaints'
 import Fees from './pages/Fees'
+import Reports from './pages/Reports'
 import Profile from './pages/Profile'
 import SubscriptionUpgrade from './pages/SubscriptionUpgrade'
 import Debug from './pages/Debug'
@@ -37,7 +38,6 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
 
-          
           {/* Protected routes */}
           <Route path="/app" element={
             <ProtectedRoute>
@@ -87,7 +87,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="teachers" element={
-              <ProtectedRoute roles={['school_admin', 'principal']}>
+              <ProtectedRoute roles={['super_admin', 'school_admin', 'principal']}>
                 <Teachers />
               </ProtectedRoute>
             } />
@@ -110,6 +110,11 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="complaints" element={<Complaints />} />
             <Route path="fees" element={<Fees />} />
+            <Route path="reports" element={
+              <ProtectedRoute roles={['school_admin', 'principal', 'teacher']}>
+                <Reports />
+              </ProtectedRoute>
+            } />
             <Route path="subscription/upgrade" element={<SubscriptionUpgrade />} />
             <Route path="debug" element={<Debug />} />
           </Route>

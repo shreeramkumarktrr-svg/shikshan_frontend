@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
 
 function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] }) {
+  const [showPassword, setShowPassword] = useState(false)
   const {
     register,
     handleSubmit,
@@ -17,6 +18,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
       lastName: '',
       email: '',
       phone: '',
+      password: '',
       role: userType || 'student',
       dateOfBirth: '',
       gender: '',
@@ -42,6 +44,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
         lastName: user.lastName || '',
         email: user.email || '',
         phone: user.phone || '',
+        password: '', // Don't populate password for existing users
         role: user.role || userType || 'student',
         dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
         gender: user.gender || '',
@@ -189,6 +192,43 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 )}
               </div>
             </div>
+
+            {/* Password field for new users */}
+            {!user && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password *
+                </label>
+                <div className="relative">
+                  <input
+                    {...register('password', { 
+                      required: 'Password is required',
+                      minLength: { value: 6, message: 'Password must be at least 6 characters' }
+                    })}
+                    type={showPassword ? 'text' : 'password'}
+                    className={`input pr-10 ${errors.password ? 'input-error' : ''}`}
+                    placeholder="Enter password (minimum 6 characters)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  This will be the user's login password. They can change it later.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Role and Personal Details */}
@@ -410,12 +450,11 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
             </div>
           )}
 
-          {/* Password Note */}
-          {!user && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-              <p className="text-sm text-blue-800">
-                <strong>Note:</strong> A default password will be generated for this user. 
-                You can change it later using the password management feature.
+          {/* Password Note for existing users */}
+          {user && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Note:</strong> To change the password for this user, use the password management feature from the user details page.
               </p>
             </div>
           )}

@@ -65,12 +65,9 @@ function ComplaintModal({ onClose, onSuccess }) {
 
       console.log('🔄 Submitting complaint data:', submitData)
       const response = await complaintsAPI.create(submitData)
-      console.log('✅ Complaint response:', response)
-      
       toast.success('Complaint submitted successfully')
       onSuccess()
     } catch (error) {
-      console.error('❌ Submit complaint error:', error)
       console.error('Error response:', error.response)
       console.error('Error status:', error.response?.status)
       console.error('Error data:', error.response?.data)
@@ -80,8 +77,6 @@ function ComplaintModal({ onClose, onSuccess }) {
       setIsSubmitting(false)
     }
   }
-
-
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -168,8 +163,6 @@ function ComplaintModal({ onClose, onSuccess }) {
               </select>
             </div>
           </div>
-
-
 
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="text-sm font-medium text-blue-900 mb-2">What happens next?</h4>

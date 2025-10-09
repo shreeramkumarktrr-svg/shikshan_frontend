@@ -42,7 +42,7 @@ function Sidebar({ onClose }) {
     { name: 'Homework', href: '/app/homework', icon: CalendarIcon, roles: ['school_admin', 'principal', 'teacher', 'student', 'parent'], feature: FEATURES.HOMEWORK },
     { name: 'Events', href: '/app/events', icon: SpeakerWaveIcon, roles: ['all'], feature: FEATURES.EVENTS },
     { name: 'Complaints', href: '/app/complaints', icon: ExclamationTriangleIcon, roles: ['all'] },
-    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent'], feature: FEATURES.FEE_MANAGEMENT },
+    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent'], feature: FEATURES.FEES },
     { name: 'Reports', href: '/app/reports', icon: ChartBarIcon, roles: ['school_admin', 'principal', 'teacher'], feature: FEATURES.REPORTS }
   ]
 
@@ -57,12 +57,7 @@ function Sidebar({ onClose }) {
         return item.roles.some(role => hasRole(role))
       })
 
-  // Debug logging
-  console.log('👤 Current user:', user);
-  console.log('🔑 User roles:', user?.role);
-  console.log('🏫 School ID:', user?.schoolId);
-  console.log('📋 Navigation items:', filteredNavigation.length);
-
+  
   return (
     <div className="flex flex-col w-64 bg-white shadow-lg h-full">
       {/* Header */}

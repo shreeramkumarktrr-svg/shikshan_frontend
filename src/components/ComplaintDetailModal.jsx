@@ -93,8 +93,6 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
     }
   }
 
-
-
   const getStatusIcon = (status) => {
     switch (status) {
       case 'open':
@@ -225,8 +223,6 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
               </div>
             )}
           </div>
-
-
 
           {/* Status Update Section */}
           {canUpdateStatus && (
@@ -359,8 +355,6 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                   className="input"
                   placeholder="Add a comment or update..."
                 />
-
-
 
                 <button
                   onClick={handleAddUpdate}
