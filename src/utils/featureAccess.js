@@ -6,6 +6,250 @@ let cacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
+ * Check student-specific permissions for features and actions
+ * @param {string} featureName - Name of the feature to check
+ * @param {string} action - Action type (view, create, update, delete)
+ * @returns {boolean} True if student has permission
+ */
+export const hasStudentPermission = (featureName, action = 'view') => {
+  const studentPermissions = {
+    // 1. Dashboard (Student specific) - Full access
+    dashboard: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 2. Teachers (Not visible at all) - No access
+    teachers: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 3. Students (Not visible at all) - No access
+    students: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 4. Classes (Not visible at all) - No access
+    classes: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 5. Attendance (Not visible at all) - No access
+    attendance: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 6. Homework (can see their homework) - Read only for their own
+    homework: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 7. Events (can see the school wide events) - Read only
+    events: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 8. Complaints (can create/modify and overview the complaints) - Limited access
+    complaints: {
+      view: true,
+      create: true,
+      update: true,
+      delete: false
+    },
+    
+    // 9. Fees (Can see their fees generated for their class) - Read only for their own
+    fees: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    feeManagement: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 10. Reports (Not visible at all) - No access
+    reports: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    }
+  };
+  
+  const featurePermissions = studentPermissions[featureName];
+  if (!featurePermissions) {
+    return false; // Feature not defined for students
+  }
+  
+  return featurePermissions[action] || false;
+};
+
+/**
+ * Check teacher-specific permissions for features and actions
+ * @param {string} featureName - Name of the feature to check
+ * @param {string} action - Action type (view, create, update, delete)
+ * @returns {boolean} True if teacher has permission
+ */
+export const hasTeacherPermission = (featureName, action = 'view') => {
+  const teacherPermissions = {
+    // 1. Dashboard (Teacher specific) - Full access
+    dashboard: {
+      view: true,
+      create: true,
+      update: true,
+      delete: true
+    },
+    
+    // 2. Teachers (can't add/update teachers) - Read only
+    teachers: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 3. Students (can do everything) - Full access
+    students: {
+      view: true,
+      create: true,
+      update: true,
+      delete: true
+    },
+    
+    // 4. Classes (can't add/update classes) - Read only
+    classes: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 5. Attendance (can mark their own and all students attendance) - Full access
+    attendance: {
+      view: true,
+      create: true,
+      update: true,
+      delete: true
+    },
+    
+    // 6. Homework (can do everything) - Full access
+    homework: {
+      view: true,
+      create: true,
+      update: true,
+      delete: true
+    },
+    
+    // 7. Events (can do everything) - Full access
+    events: {
+      view: true,
+      create: true,
+      update: true,
+      delete: true
+    },
+    
+    // 8. Complaints (only review and update complaints) - Limited access
+    complaints: {
+      view: true,
+      create: false,
+      update: true,
+      delete: false
+    },
+    
+    // 9. Fees (Not visible at all) - No access
+    fees: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    feeManagement: {
+      view: false,
+      create: false,
+      update: false,
+      delete: false
+    },
+    
+    // 10. Reports (can see everything excluding fees and financial related data) - Read only
+    reports: {
+      view: true,
+      create: false,
+      update: false,
+      delete: false
+    }
+  };
+  
+  const featurePermissions = teacherPermissions[featureName];
+  if (!featurePermissions) {
+    return false; // Feature not defined for teachers
+  }
+  
+  return featurePermissions[action] || false;
+};
+
+/**
+ * Check if teacher can access a specific report type
+ * @param {string} reportType - Type of report (attendance, academic, financial, etc.)
+ * @returns {boolean} True if teacher can access this report type
+ */
+export const hasTeacherReportAccess = (reportType) => {
+  const allowedReports = [
+    'attendance',
+    'academic',
+    'student_performance',
+    'homework',
+    'events',
+    'complaints',
+    'class_summary',
+    'student_list'
+  ];
+  
+  const restrictedReports = [
+    'financial',
+    'fees',
+    'payments',
+    'revenue',
+    'expenses'
+  ];
+  
+  return allowedReports.includes(reportType) && !restrictedReports.includes(reportType);
+};
+
+/**
+ * Check if user can access financial reports
+ * @param {string} userRole - User role
+ * @returns {boolean} True if user can access financial reports
+ */
+export const canAccessFinancialReports = (userRole) => {
+  const authorizedRoles = ['school_admin', 'principal', 'finance_officer', 'super_admin'];
+  return authorizedRoles.includes(userRole);
+};
+
+/**
  * Get school features from API or cache
  * @param {string} schoolId - Optional school ID (for super admin viewing specific school)
  * @returns {Promise<Object>} School features and subscription info
@@ -104,15 +348,46 @@ export const getSchoolFeatures = async (schoolId = null) => {
 };
 
 /**
- * Check if a specific feature is available for the current school
+ * Check if a specific feature is available for the current school and user role
  * @param {string} featureName - Name of the feature to check
  * @param {string} schoolId - Optional school ID (for super admin)
+ * @param {string} action - Optional action type (view, create, update, delete)
  * @returns {Promise<boolean>} True if feature is available
  */
-export const hasFeature = async (featureName, schoolId = null) => {
+export const hasFeature = async (featureName, schoolId = null, action = 'view') => {
   try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Super admin has access to everything
+    if (user.role === 'super_admin') {
+      return true;
+    }
+    
+    // Check if the feature is available in the school's subscription
     const features = await getSchoolFeatures(schoolId);
-    return features.features.available.includes(featureName);
+    const hasSubscriptionAccess = features.features.available.includes(featureName);
+    
+    if (!hasSubscriptionAccess) {
+      return false;
+    }
+    
+    // Apply role-based permissions for teachers
+    if (user.role === 'teacher') {
+      // Special case: Teachers have NO access to fees at all
+      if (featureName === 'fees' || featureName === 'feeManagement') {
+        return false;
+      }
+      
+      return hasTeacherPermission(featureName, action);
+    }
+    
+    // Apply role-based permissions for students
+    if (user.role === 'student') {
+      return hasStudentPermission(featureName, action);
+    }
+    
+    // For other roles, if they have subscription access, they have full access
+    return true;
   } catch (error) {
     console.error(`Error checking feature ${featureName}:`, error);
     // For super admin, default to true if there's an error
@@ -221,6 +496,9 @@ if (typeof window !== 'undefined') {
   window.debugFeatureAccess = debugFeatureAccess;
   window.clearFeaturesCache = clearFeaturesCache;
   window.refreshFeatures = refreshFeatures;
+  window.hasTeacherPermission = hasTeacherPermission;
+  window.hasStudentPermission = hasStudentPermission;
+  window.hasTeacherReportAccess = hasTeacherReportAccess;
 }
 
 /**
@@ -277,6 +555,8 @@ export const FEATURE_NAMES = {
   [FEATURES.PARENT_PORTAL]: 'Parent Portal'
 };
 
+
+
 /**
  * Handle feature access errors from API responses
  * @param {Object} error - Error object from API
@@ -298,6 +578,15 @@ export const handleFeatureAccessError = (error) => {
       type: 'subscription_inactive',
       status: error.response.data.subscriptionStatus,
       message: error.response.data.error
+    };
+  }
+  
+  if (error.response?.data?.code === 'TEACHER_PERMISSION_DENIED') {
+    return {
+      type: 'teacher_permission',
+      feature: error.response.data.feature,
+      action: error.response.data.action,
+      message: error.response.data.error || 'Teachers do not have permission for this action'
     };
   }
   

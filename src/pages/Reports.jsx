@@ -4,7 +4,7 @@ import api from '../utils/api'
 import LoadingSpinner from '../components/LoadingSpinner'
 import PageHeader from '../components/PageHeader'
 import FeatureGuard from '../components/FeatureGuard'
-import { FEATURES } from '../utils/featureAccess'
+import { FEATURES, hasTeacherReportAccess, canAccessFinancialReports } from '../utils/featureAccess'
 import {
   ChartBarIcon,
   DocumentChartBarIcon,
@@ -35,7 +35,7 @@ function Reports() {
     endDate: new Date().toISOString().split('T')[0]
   })
 
-  const reportTabs = [
+  const allReportTabs = [
     {
       id: 'overview',
       name: 'Overview',
@@ -52,7 +52,8 @@ function Reports() {
       id: 'financial',
       name: 'Financial',
       icon: CurrencyDollarIcon,
-      description: 'Fee collection and payment reports'
+      description: 'Fee collection and payment reports',
+      requiresFinancialAccess: true // Exclude teachers and other unauthorized roles
     },
     {
       id: 'operational',
@@ -62,9 +63,24 @@ function Reports() {
     }
   ]
 
+  // Filter tabs based on user role
+  const reportTabs = allReportTabs.filter(tab => {
+    if (tab.requiresFinancialAccess) {
+      return canAccessFinancialReports(user?.role);
+    }
+    return true; // No restriction
+  })
+
   useEffect(() => {
     fetchReportData()
   }, [dateRange])
+
+  // Redirect unauthorized users away from financial tab
+  useEffect(() => {
+    if (activeTab === 'financial' && !canAccessFinancialReports(user?.role)) {
+      setActiveTab('overview')
+    }
+  }, [activeTab, user?.role])
 
   const fetchReportData = async () => {
     try {
@@ -102,10 +118,14 @@ function Reports() {
         api.get('/events/stats').catch(err => ({ data: null, error: err }))
       )
       
-      // Fees statistics
-      promises.push(
-        api.get('/fees/stats/overview').catch(err => ({ data: null, error: err }))
-      )
+      // Fees statistics - Only fetch for authorized roles
+      if (canAccessFinancialReports(user?.role)) {
+        promises.push(
+          api.get('/fees/stats/overview').catch(err => ({ data: null, error: err }))
+        )
+      } else {
+        promises.push(Promise.resolve({ data: null }))
+      }
       
       // Complaints statistics
       promises.push(
@@ -208,7 +228,7 @@ function Reports() {
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid grid-cols-1 ${canAccessFinancialReports(user?.role) ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-6`}>
         <div className="card">
           <div className="card-header">
             <h3 className="text-lg font-medium">Academic Overview</h3>
@@ -231,27 +251,30 @@ function Reports() {
           </div>
         </div>
 
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium">Financial Overview</h3>
-          </div>
-          <div className="card-body">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Total Fees</span>
-                <span className="font-semibold">₹{reportData.fees?.totalFees || '0.00'}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Collected</span>
-                <span className="font-semibold text-green-600">₹{reportData.fees?.totalCollected || '0.00'}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Collection Rate</span>
-                <span className="font-semibold">{reportData.fees?.collectionRate || '0'}%</span>
+        {/* Financial Overview - Only show to authorized roles */}
+        {canAccessFinancialReports(user?.role) && (
+          <div className="card">
+            <div className="card-header">
+              <h3 className="text-lg font-medium">Financial Overview</h3>
+            </div>
+            <div className="card-body">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Total Fees</span>
+                  <span className="font-semibold">₹{reportData.fees?.totalFees || '0.00'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Collected</span>
+                  <span className="font-semibold text-green-600">₹{reportData.fees?.totalCollected || '0.00'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Collection Rate</span>
+                  <span className="font-semibold">{reportData.fees?.collectionRate || '0'}%</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
@@ -463,7 +486,7 @@ function Reports() {
         <div>
           {activeTab === 'overview' && renderOverviewTab()}
           {activeTab === 'academic' && renderAcademicTab()}
-          {activeTab === 'financial' && renderFinancialTab()}
+          {activeTab === 'financial' && canAccessFinancialReports(user?.role) && renderFinancialTab()}
           {activeTab === 'operational' && renderOperationalTab()}
         </div>
       </div>

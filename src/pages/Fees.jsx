@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import api from '../utils/api';
+import api, { feesAPI } from '../utils/api';
 import { useFeatureAccess, FeatureAccessDenied } from '../components/FeatureGuard';
 import { FEATURES } from '../utils/featureAccess';
 import FeeModal from '../components/FeeModal';
@@ -40,14 +40,29 @@ const Fees = () => {
 
   useEffect(() => {
     fetchFees();
-    fetchClasses();
     fetchStats();
-  }, [filters]);
+    if (user?.role !== 'student') {
+      fetchClasses();
+    }
+  }, [filters, user?.role]);
 
   const fetchFees = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      
+      // For students, fetch their own fees
+      if (user?.role === 'student') {
+        try {
+          const response = await feesAPI.getMyFees();
+          setFees(response.data.studentFees || []);
+        } catch (error) {
+          console.error('Error fetching student fees:', error);
+          setFees([]);
+        }
+        setLoading(false);
+        return;
+      }
       if (filters.classId) params.append('classId', filters.classId);
       if (filters.status) params.append('status', filters.status);
       
@@ -77,13 +92,29 @@ const Fees = () => {
 
   const fetchStats = async () => {
     try {
-      const params = new URLSearchParams();
-      if (filters.classId) params.append('classId', filters.classId);
-      
-      const response = await api.get(`/fees/stats/overview?${params}`);
-      setStats(response.data);
+      if (user?.role === 'student') {
+        // Students get their own stats
+        const response = await feesAPI.getMyStats();
+        setStats(response.data);
+      } else {
+        // Admin/teachers get general stats
+        const params = new URLSearchParams();
+        if (filters.classId) params.append('classId', filters.classId);
+        
+        const response = await api.get(`/fees/stats/overview?${params}`);
+        setStats(response.data);
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
+      // Set default stats to prevent UI errors
+      setStats({
+        totalFees: 0,
+        totalCollected: 0,
+        totalPaid: 0,
+        totalPending: 0,
+        totalOverdue: 0,
+        collectionRate: 0
+      });
     }
   };
 
@@ -141,9 +172,65 @@ const Fees = () => {
 
   const canManageFees = ['school_admin', 'teacher'].includes(user?.role);
   const canGenerateFees = ['school_admin', 'principal'].includes(user?.role);
+  const isStudent = user?.role === 'student';
 
-  // Table columns configuration
-  const columns = [
+  // Student-specific columns for their fee view
+  const studentColumns = [
+    {
+      key: 'fee',
+      label: 'Fee Details',
+      render: (value, studentFee) => (
+        <div>
+          <div className="text-sm font-medium text-gray-900">{studentFee.fee?.title}</div>
+          {studentFee.fee?.description && (
+            <div className="text-sm text-gray-500 truncate">{studentFee.fee?.description}</div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'amount',
+      label: 'Amount',
+      render: (value, studentFee) => (
+        <div className="text-sm font-medium text-gray-900">₹{studentFee.fee?.amount}</div>
+      )
+    },
+    {
+      key: 'dueDate',
+      label: 'Due Date',
+      render: (value, studentFee) => (
+        <div className="text-sm text-gray-900">
+          {new Date(studentFee.fee?.dueDate).toLocaleDateString()}
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Payment Status',
+      render: (value, studentFee) => getStatusBadge(studentFee.status)
+    },
+    {
+      key: 'paidAmount',
+      label: 'Paid Amount',
+      render: (value, studentFee) => (
+        <div className="text-sm text-gray-900">
+          ₹{studentFee.paidAmount || 0}
+        </div>
+      )
+    },
+    {
+      key: 'paidDate',
+      label: 'Paid Date',
+      render: (value, studentFee) => (
+        <div className="text-sm text-gray-900">
+          {studentFee.paidDate ? new Date(studentFee.paidDate).toLocaleDateString() : '-'}
+        </div>
+      )
+    }
+  ];
+
+  // Admin/Teacher columns for fee management
+  const adminColumns = [
     {
       key: 'title',
       label: 'Fee Details',
@@ -252,9 +339,9 @@ const Fees = () => {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader
-        title="Fees Management"
-        subtitle="Manage school fees and track payments"
-        actions={[
+        title={isStudent ? "My Fees" : "Fees Management"}
+        subtitle={isStudent ? "View your fee details and payment status" : "Manage school fees and track payments"}
+        actions={isStudent ? [] : [
           ...(canGenerateFees ? [{
             label: 'Generate Fees',
             variant: 'secondary',
@@ -272,36 +359,65 @@ const Fees = () => {
       />
 
       {/* Statistics Cards */}
-      <CardGrid columns="auto">
-        <StatCard
-          title="Total Fees"
-          value={`₹${stats.totalFees}`}
-          icon={<CurrencyDollarIcon className="h-6 w-6 text-blue-600" />}
-        />
-        <StatCard
-          title="Collected"
-          value={`₹${stats.totalCollected}`}
-          icon={<CheckCircleIcon className="h-6 w-6 text-green-600" />}
-        />
-        <StatCard
-          title="Pending"
-          value={`₹${stats.totalPending}`}
-          icon={<ClockIcon className="h-6 w-6 text-yellow-600" />}
-        />
-        <StatCard
-          title="Overdue"
-          value={`₹${stats.totalOverdue}`}
-          icon={<ExclamationTriangleIcon className="h-6 w-6 text-red-600" />}
-        />
-        <StatCard
-          title="Collection Rate"
-          value={`${stats.collectionRate}%`}
-          icon={<CurrencyDollarIcon className="h-6 w-6 text-purple-600" />}
-        />
-      </CardGrid>
+      {!isStudent && (
+        <CardGrid columns="auto">
+          <StatCard
+            title="Total Fees"
+            value={`₹${stats.totalFees}`}
+            icon={<CurrencyDollarIcon className="h-6 w-6 text-blue-600" />}
+          />
+          <StatCard
+            title="Collected"
+            value={`₹${stats.totalCollected}`}
+            icon={<CheckCircleIcon className="h-6 w-6 text-green-600" />}
+          />
+          <StatCard
+            title="Pending"
+            value={`₹${stats.totalPending}`}
+            icon={<ClockIcon className="h-6 w-6 text-yellow-600" />}
+          />
+          <StatCard
+            title="Overdue"
+            value={`₹${stats.totalOverdue}`}
+            icon={<ExclamationTriangleIcon className="h-6 w-6 text-red-600" />}
+          />
+          <StatCard
+            title="Collection Rate"
+            value={`${stats.collectionRate}%`}
+            icon={<CurrencyDollarIcon className="h-6 w-6 text-purple-600" />}
+          />
+        </CardGrid>
+      )}
+      
+      {/* Student Fee Summary */}
+      {isStudent && (
+        <CardGrid columns="auto">
+          <StatCard
+            title="Total Fees"
+            value={`₹${stats.totalFees || 0}`}
+            icon={<CurrencyDollarIcon className="h-6 w-6 text-blue-600" />}
+          />
+          <StatCard
+            title="Paid"
+            value={`₹${stats.totalPaid || 0}`}
+            icon={<CheckCircleIcon className="h-6 w-6 text-green-600" />}
+          />
+          <StatCard
+            title="Pending"
+            value={`₹${stats.totalPending || 0}`}
+            icon={<ClockIcon className="h-6 w-6 text-yellow-600" />}
+          />
+          <StatCard
+            title="Overdue"
+            value={`₹${stats.totalOverdue || 0}`}
+            icon={<ExclamationTriangleIcon className="h-6 w-6 text-red-600" />}
+          />
+        </CardGrid>
+      )}
 
-      {/* Filters */}
-      <ResponsiveCard title="Filters">
+      {/* Filters - Only for admin/teachers */}
+      {!isStudent && (
+        <ResponsiveCard title="Filters">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -334,10 +450,11 @@ const Fees = () => {
           </div>
         </div>
       </ResponsiveCard>
+      )}
 
       {/* Fees List */}
       <ResponsiveTable
-        columns={columns}
+        columns={isStudent ? studentColumns : adminColumns}
         data={fees}
         loading={loading}
         emptyMessage="No fees found. Create your first fee to get started."

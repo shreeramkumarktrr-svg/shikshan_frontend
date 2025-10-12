@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useFeatureAccess } from './FeatureGuard';
 import { useAuth } from '../contexts/AuthContext';
+import { hasTeacherPermission } from '../utils/featureAccess';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
 function NavigationItem({ item, onClose }) {

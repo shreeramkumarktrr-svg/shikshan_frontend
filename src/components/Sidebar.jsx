@@ -42,7 +42,7 @@ function Sidebar({ onClose }) {
     { name: 'Homework', href: '/app/homework', icon: CalendarIcon, roles: ['school_admin', 'principal', 'teacher', 'student', 'parent'], feature: FEATURES.HOMEWORK },
     { name: 'Events', href: '/app/events', icon: SpeakerWaveIcon, roles: ['all'], feature: FEATURES.EVENTS },
     { name: 'Complaints', href: '/app/complaints', icon: ExclamationTriangleIcon, roles: ['all'] },
-    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent'], feature: FEATURES.FEES },
+    { name: 'Fees', href: '/app/fees', icon: CurrencyDollarIcon, roles: ['school_admin', 'principal', 'finance_officer', 'parent', 'student'], feature: FEATURES.FEES },
     { name: 'Reports', href: '/app/reports', icon: ChartBarIcon, roles: ['school_admin', 'principal', 'teacher'], feature: FEATURES.REPORTS }
   ]
 
