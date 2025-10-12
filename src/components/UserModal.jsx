@@ -30,7 +30,8 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
       parentName: '',
       parentContact: '',
       parentEmail: '',
-      classTeacher: false
+      classTeacher: false,
+      isActive: true
     }
   })
 
@@ -56,7 +57,8 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
         parentName: user.parentName || '',
         parentContact: user.parentContact || '',
         parentEmail: user.parentEmail || '',
-        classTeacher: user.classTeacher || false
+        classTeacher: user.classTeacher || false,
+        isActive: user.isActive !== undefined ? user.isActive : true
       })
     }
   }, [user, reset, userType])
@@ -65,8 +67,21 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
     const userData = {
       ...data,
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString() : null,
-      subjects: data.subjects ? data.subjects.filter(subject => subject.trim() !== '') : []
+      subjects: data.subjects ? data.subjects.filter(subject => subject.trim() !== '') : [],
+      isActive: data.isActive === 'true' || data.isActive === true // Convert string to boolean
     }
+    
+    // Remove password field when updating existing users (password updates should be handled separately)
+    if (user) {
+      delete userData.password
+      
+      // If userType is specified (e.g., from Teachers page), don't send role changes
+      // This prevents accidental role changes when editing from specific user type pages
+      if (userType) {
+        delete userData.role
+      }
+    }
+    
     onSave(userData)
   }
 
@@ -111,14 +126,14 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {/* Basic Information */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   First Name *
                 </label>
                 <input
-                  {...register('firstName', { 
+                  {...register('firstName', {
                     required: 'First name is required',
                     minLength: { value: 2, message: 'Minimum 2 characters' }
                   })}
@@ -136,7 +151,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                   Last Name *
                 </label>
                 <input
-                  {...register('lastName', { 
+                  {...register('lastName', {
                     required: 'Last name is required',
                     minLength: { value: 2, message: 'Minimum 2 characters' }
                   })}
@@ -157,9 +172,9 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 </label>
                 <input
                   {...register('email', {
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
+                    validate: (value) => {
+                      if (!value || value.trim() === '') return true; // Allow empty
+                      return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value) || 'Invalid email address';
                     }
                   })}
                   type="email"
@@ -176,16 +191,16 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                   Phone *
                 </label>
                 <input
-                  {...register('phone', { 
+                  {...register('phone', {
                     required: 'Phone number is required',
                     pattern: {
                       value: /^\d{10,15}$/,
-                      message: 'Invalid phone number'
+                      message: 'Phone number must be 10-15 digits only'
                     }
                   })}
                   type="tel"
                   className={`input ${errors.phone ? 'input-error' : ''}`}
-                  placeholder="Enter phone number"
+                  placeholder="Enter 10-15 digit phone number"
                 />
                 {errors.phone && (
                   <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
@@ -201,7 +216,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 </label>
                 <div className="relative">
                   <input
-                    {...register('password', { 
+                    {...register('password', {
                       required: 'Password is required',
                       minLength: { value: 6, message: 'Password must be at least 6 characters' }
                     })}
@@ -234,14 +249,14 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {/* Role and Personal Details */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Role & Personal Details</h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
               {!userType && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Role *
                   </label>
-                  <select 
+                  <select
                     {...register('role', { required: 'Role is required' })}
                     className={`input ${errors.role ? 'input-error' : ''}`}
                   >
@@ -269,6 +284,19 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select {...register('isActive')} className="input">
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  Inactive users cannot login to the system
+                </p>
               </div>
             </div>
 
@@ -333,7 +361,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 {userType === 'student' ? 'Class Assignment' : 'Class Teacher Assignment'}
               </h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -393,7 +421,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {userType === 'student' && (
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4">Parent Information</h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -434,9 +462,9 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 </label>
                 <input
                   {...register('parentEmail', {
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
+                    validate: (value) => {
+                      if (!value || value.trim() === '') return true; // Allow empty
+                      return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value) || 'Invalid email address';
                     }
                   })}
                   type="email"

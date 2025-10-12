@@ -9,6 +9,8 @@ export default {
       screens: {
         'xs': '475px',
         '3xl': '1600px',
+        '4xl': '1920px',
+        '5xl': '2560px',
       },
       colors: {
         primary: {

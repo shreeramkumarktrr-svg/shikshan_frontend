@@ -6,6 +6,7 @@ import { FEATURES } from '../utils/featureAccess';
 import FeeModal from '../components/FeeModal';
 import FeeDetailModal from '../components/FeeDetailModal';
 import PaymentModal from '../components/PaymentModal';
+import GenerateFeesModal from '../components/GenerateFeesModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ResponsiveCard, { CardGrid, StatCard } from '../components/ResponsiveCard';
 import ResponsiveTable from '../components/ResponsiveTable';
@@ -15,13 +16,14 @@ import { PlusIcon, CurrencyDollarIcon, ClockIcon, ExclamationTriangleIcon, Check
 
 const Fees = () => {
   const { user } = useAuth();
-  const { hasAccess, loading: featureLoading } = useFeatureAccess(FEATURES.FEE_MANAGEMENT);
+  const { hasAccess, loading: featureLoading } = useFeatureAccess(FEATURES.FEES);
   const [fees, setFees] = useState([]);
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFeeModal, setShowFeeModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showGenerateFeesModal, setShowGenerateFeesModal] = useState(false);
   const [selectedFee, setSelectedFee] = useState(null);
   const [selectedStudentFee, setSelectedStudentFee] = useState(null);
   const [filters, setFilters] = useState({
@@ -90,6 +92,10 @@ const Fees = () => {
     setShowFeeModal(true);
   };
 
+  const handleGenerateFees = () => {
+    setShowGenerateFeesModal(true);
+  };
+
   const handleEditFee = (fee) => {
     setSelectedFee(fee);
     setShowFeeModal(true);
@@ -134,6 +140,7 @@ const Fees = () => {
   };
 
   const canManageFees = ['school_admin', 'teacher'].includes(user?.role);
+  const canGenerateFees = ['school_admin', 'principal'].includes(user?.role);
 
   // Table columns configuration
   const columns = [
@@ -233,7 +240,7 @@ const Fees = () => {
   if (!hasAccess) {
     return (
       <FeatureAccessDenied 
-        feature={FEATURES.FEE_MANAGEMENT}
+        feature={FEATURES.FEES}
         onUpgrade={() => window.location.href = '/app/subscription/upgrade'}
       />
     );
@@ -247,15 +254,21 @@ const Fees = () => {
       <PageHeader
         title="Fees Management"
         subtitle="Manage school fees and track payments"
-        actions={canManageFees ? [
-          {
+        actions={[
+          ...(canGenerateFees ? [{
+            label: 'Generate Fees',
+            variant: 'secondary',
+            icon: <CurrencyDollarIcon className="h-5 w-5" />,
+            onClick: handleGenerateFees
+          }] : []),
+          ...(canManageFees ? [{
             label: 'Create Fee',
             variant: 'primary',
             icon: <PlusIcon className="h-5 w-5" />,
             onClick: handleCreateFee,
             primary: true
-          }
-        ] : []}
+          }] : [])
+        ]}
       />
 
       {/* Statistics Cards */}
@@ -362,6 +375,18 @@ const Fees = () => {
             fetchStats();
             setShowPaymentModal(false);
             setShowDetailModal(false);
+          }}
+        />
+      )}
+
+      {showGenerateFeesModal && (
+        <GenerateFeesModal
+          classes={classes}
+          onClose={() => setShowGenerateFeesModal(false)}
+          onSave={() => {
+            fetchFees();
+            fetchStats();
+            setShowGenerateFeesModal(false);
           }}
         />
       )}

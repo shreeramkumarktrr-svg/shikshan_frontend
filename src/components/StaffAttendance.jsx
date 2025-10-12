@@ -35,6 +35,7 @@ function StaffAttendance() {
     queryKey: ['staff'],
     queryFn: () => usersAPI.getAll({ 
       role: 'teacher,school_admin,principal,finance_officer,support_staff',
+      active: 'true',
       limit: 100 
     }),
     retry: 1,

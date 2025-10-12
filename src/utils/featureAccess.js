@@ -237,6 +237,7 @@ export const FEATURES = {
   EVENTS: 'events',
   COMPLAINTS: 'complaints',
   FEES: 'fees',
+  FEE_MANAGEMENT: 'feeManagement',
   REPORTS: 'reports',
   // Additional Premium Features
   SMS_NOTIFICATIONS: 'smsNotifications',
@@ -263,6 +264,7 @@ export const FEATURE_NAMES = {
   [FEATURES.EVENTS]: 'Events & Calendar',
   [FEATURES.COMPLAINTS]: 'Complaints Management',
   [FEATURES.FEES]: 'Fee Management',
+  [FEATURES.FEE_MANAGEMENT]: 'Fee Management',
   [FEATURES.REPORTS]: 'Reports & Analytics',
   // Additional Premium Features
   [FEATURES.SMS_NOTIFICATIONS]: 'SMS Notifications',

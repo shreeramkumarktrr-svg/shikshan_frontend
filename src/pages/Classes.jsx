@@ -35,7 +35,7 @@ function Classes() {
   })
   const [page, setPage] = useState(1)
 
-  // Fetch classes
+  // Fetch classes (filtered)
   const { data: classesData, isLoading, error } = useQuery({
     queryKey: ['classes', filters, page],
     queryFn: () => classesAPI.getAll({ 
@@ -44,6 +44,14 @@ function Classes() {
       limit: 10 
     }),
     keepPreviousData: true,
+    retry: 1,
+    retryDelay: 1000
+  })
+
+  // Fetch class stats (unfiltered for statistics)
+  const { data: classStatsData } = useQuery({
+    queryKey: ['class-stats'],
+    queryFn: () => classesAPI.getAll({ limit: 1000 }), // Get all classes for stats
     retry: 1,
     retryDelay: 1000
   })
@@ -60,7 +68,9 @@ function Classes() {
   const createClassMutation = useMutation({
     mutationFn: classesAPI.create,
     onSuccess: () => {
+      // Invalidate both classes list and stats
       queryClient.invalidateQueries(['classes'])
+      queryClient.invalidateQueries(['class-stats'])
       setIsCreateModalOpen(false)
       toast.success('Class created successfully!')
     },
@@ -73,7 +83,9 @@ function Classes() {
   const updateClassMutation = useMutation({
     mutationFn: ({ id, data }) => classesAPI.update(id, data),
     onSuccess: () => {
+      // Invalidate both classes list and stats
       queryClient.invalidateQueries(['classes'])
+      queryClient.invalidateQueries(['class-stats'])
       setSelectedClass(null)
       toast.success('Class updated successfully!')
     },
@@ -86,7 +98,9 @@ function Classes() {
   const deleteClassMutation = useMutation({
     mutationFn: classesAPI.delete,
     onSuccess: () => {
+      // Invalidate both classes list and stats
       queryClient.invalidateQueries(['classes'])
+      queryClient.invalidateQueries(['class-stats'])
       toast.success('Class deleted successfully!')
     },
     onError: (error) => {
@@ -98,7 +112,9 @@ function Classes() {
   const updateTimetableMutation = useMutation({
     mutationFn: ({ id, data }) => classesAPI.updateTimetable(id, data),
     onSuccess: () => {
+      // Invalidate both classes list and stats
       queryClient.invalidateQueries(['classes'])
+      queryClient.invalidateQueries(['class-stats'])
       setIsTimetableModalOpen(false)
       setSelectedClass(null)
       toast.success('Timetable updated successfully!')
@@ -178,17 +194,24 @@ function Classes() {
   const classes = Array.isArray(classesData?.data?.classes) ? classesData.data.classes : []
   const pagination = classesData?.data?.pagination || {}
   const teachers = Array.isArray(teachersData?.data?.users) ? teachersData.data.users : []
+  
+  // Stats from separate unfiltered query
+  const allClasses = Array.isArray(classStatsData?.data?.classes) ? classStatsData.data.classes : []
+  const totalClasses = allClasses.length
+  const activeClasses = allClasses.filter(cls => cls.isActive).length
+  const classesWithTeachers = allClasses.filter(cls => cls.classTeacher).length
+  const totalStudents = allClasses.reduce((total, cls) => total + (cls.studentCount || 0), 0)
 
-  // Get unique grades for filtering
+  // Get unique grades for filtering (from filtered results)
   const grades = [...new Set(classes.map(cls => cls.grade))].sort()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Classes Management</h1>
-          <p className="text-gray-600">Manage classes, sections, and timetables</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 truncate">Classes Management</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage classes, sections, and timetables</p>
         </div>
         {canManageClasses && (
           <button
@@ -196,10 +219,10 @@ function Classes() {
               setSelectedClass(null)
               setIsCreateModalOpen(true)
             }}
-            className="btn-primary"
+            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base"
           >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Class
+            <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>Add Class</span>
           </button>
         )}
       </div>
@@ -209,34 +232,28 @@ function Classes() {
         <div className="card">
           <div className="card-body text-center">
             <AcademicCapIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{classes.length}</div>
+            <div className="text-2xl font-bold text-gray-900">{totalClasses}</div>
             <div className="text-sm text-gray-500">Total Classes</div>
           </div>
         </div>
         <div className="card">
           <div className="card-body text-center">
             <AcademicCapIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {classes.filter(cls => cls.isActive).length}
-            </div>
+            <div className="text-2xl font-bold text-gray-900">{activeClasses}</div>
             <div className="text-sm text-gray-500">Active Classes</div>
           </div>
         </div>
         <div className="card">
           <div className="card-body text-center">
             <UserIcon className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {classes.filter(cls => cls.classTeacher).length}
-            </div>
+            <div className="text-2xl font-bold text-gray-900">{classesWithTeachers}</div>
             <div className="text-sm text-gray-500">With Class Teachers</div>
           </div>
         </div>
         <div className="card">
           <div className="card-body text-center">
             <UserGroupIcon className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">
-              {classes.reduce((total, cls) => total + (cls.studentCount || 0), 0)}
-            </div>
+            <div className="text-2xl font-bold text-gray-900">{totalStudents}</div>
             <div className="text-sm text-gray-500">Total Students</div>
           </div>
         </div>

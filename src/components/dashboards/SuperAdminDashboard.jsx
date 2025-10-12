@@ -41,19 +41,45 @@ function SuperAdminDashboard() {
     return 'Good Evening'
   }
 
-  // Prepare subscription distribution data using actual subscription names
-  const subscriptionCounts = {}
-  schools.forEach(school => {
-    const subscriptionName = school.subscription?.name || 'Unassigned'
-    subscriptionCounts[subscriptionName] = (subscriptionCounts[subscriptionName] || 0) + 1
-  })
+  // // Prepare subscription distribution data using actual subscription names
+  // const subscriptionCounts = {}
+  // schools.forEach(school => {
+  //   const subscriptionName = school.subscription?.name || 'Unassigned'
+  //   subscriptionCounts[subscriptionName] = (subscriptionCounts[subscriptionName] || 0) + 1
+  // })
 
-  const subscriptionData = [
-    { name: 'Starter', value: subscriptionCounts['Starter'] || 0, color: '#3B82F6' },
-    { name: 'Super', value: subscriptionCounts['Super'] || 0, color: '#10B981' },
-    { name: 'Advanced', value: subscriptionCounts['Advanced'] || 0, color: '#F59E0B' },
-    ...(subscriptionCounts['Unassigned'] ? [{ name: 'Unassigned', value: subscriptionCounts['Unassigned'], color: '#6B7280' }] : [])
-  ].filter(item => item.value > 0)
+  // const subscriptionData = [
+  //   { name: 'Starter', value: subscriptionCounts['Starter'] || 0, color: '#3B82F6' },
+  //   { name: 'Super', value: subscriptionCounts['Super'] || 0, color: '#10B981' },
+  //   { name: 'Advanced', value: subscriptionCounts['Advanced'] || 0, color: '#F59E0B' },
+  //   ...(subscriptionCounts['Unassigned'] ? [{ name: 'Unassigned', value: subscriptionCounts['Unassigned'], color: '#6B7280' }] : [])
+  // ].filter(item => item.value > 0)
+  // Prepare subscription distribution data dynamically
+const subscriptionCounts = {}
+schools.forEach(school => {
+  const subscriptionName = school.subscription?.name || 'Unassigned'
+  subscriptionCounts[subscriptionName] = (subscriptionCounts[subscriptionName] || 0) + 1
+})
+
+// Dynamically build subscription data array
+const colors = [
+  '#3B82F6', // blue
+  '#10B981', // green
+  '#F59E0B', // amber
+  '#8B5CF6', // violet
+  '#EF4444', // red
+  '#6B7280'  // gray (for Unassigned or extra)
+]
+
+// Convert subscriptionCounts object to array dynamically
+const subscriptionData = Object.entries(subscriptionCounts)
+  .map(([name, value], index) => ({
+    name,
+    value,
+    color: colors[index % colors.length] // cycle through colors if more types appear
+  }))
+  .filter(item => item.value > 0)
+
 
   // Prepare visitor status distribution data
   const visitorStatusData = visitorsStats.statusCounts ? [

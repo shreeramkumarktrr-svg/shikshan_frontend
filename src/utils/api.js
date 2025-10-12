@@ -153,11 +153,20 @@ export const complaintsAPI = {
   updateStatus: (id, data) => api.put(`/complaints/${id}/status`, data),
   addUpdate: (id, data) => api.post(`/complaints/${id}/updates`, data),
   assign: (id, data) => api.put(`/complaints/${id}/assign`, data),
-  getStats: () => api.get('/complaints/stats/summary')
+  getStats: () => api.get('/complaints/stats')
 }
 
 // Fees API
 export const feesAPI = {
+  getAll: (params) => api.get('/fees', { params }),
+  getById: (id) => api.get(`/fees/${id}`),
+  create: (data) => api.post('/fees', data),
+  update: (id, data) => api.put(`/fees/${id}`, data),
+  delete: (id) => api.delete(`/fees/${id}`),
+  generate: (data) => api.post('/fees/generate', data),
+  getStats: (params) => api.get('/fees/stats/overview', { params }),
+  getStudentFees: (studentId, params) => api.get(`/fees/student/${studentId}`, { params }),
+  recordPayment: (studentFeeId, data) => api.post(`/fees/payment/${studentFeeId}`, data),
   getStructure: (params) => api.get('/fees/structure', { params }),
   createStructure: (data) => api.post('/fees/structure', data),
   updateStructure: (id, data) => api.put(`/fees/structure/${id}`, data),

@@ -374,6 +374,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
                   errors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
+                placeholder="Enter plan name"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
@@ -404,6 +405,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              placeholder="Enter description"            
             />
           </div>
 
@@ -421,6 +423,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
                 onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                 required
+                placeholder="Enter price"
               />
             </div>
 

@@ -134,7 +134,7 @@ function Schools() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Total Schools</p>
-              <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
+              <p className="text-2xl font-bold text-gray-900">{schools.length}</p>
             </div>
           </div>
         </div>
@@ -493,6 +493,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                   errors.name ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
+                placeholder="example public school"
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
@@ -509,6 +510,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                   errors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
                 required
+                placeholder="example@gmail.com"
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -522,6 +524,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                placeholder="9000000000"
               />
             </div>
 
@@ -536,6 +539,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 value={formData.establishedYear}
                 onChange={(e) => setFormData({ ...formData, establishedYear: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                placeholder="2000"
               />
             </div>
           </div>
@@ -562,6 +566,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              placeholder="enter school address"
             />
           </div>
 

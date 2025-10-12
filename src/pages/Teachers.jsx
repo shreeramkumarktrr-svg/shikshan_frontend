@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { useSchool } from '../contexts/SchoolContext'
 import { usersAPI, classesAPI } from '../utils/api'
-import api from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   PlusIcon,
@@ -32,6 +31,7 @@ function Teachers() {
   const [selectedTeacher, setSelectedTeacher] = useState(null)
   const [filters, setFilters] = useState({ search: '', active: '', hasClass: '' })
   const [page, setPage] = useState(1)
+  const [showFilters, setShowFilters] = useState(false)
 
   // 🔹 Get School ID
   const getCurrentSchoolId = () => {
@@ -65,17 +65,34 @@ function Teachers() {
     retryDelay: 1000
   })
 
+  // 🔹 Fetch Teacher Stats (separate from filtered list)
+  const { data: teacherStatsData } = useQuery({
+    queryKey: ['teacher-stats', getCurrentSchoolId()],
+    queryFn: () => {
+      const params = { role: 'teacher', limit: 1000 } // Get all teachers for stats
+      if (user?.role === 'super_admin' && getCurrentSchoolId()) {
+        params.schoolId = getCurrentSchoolId()
+      }
+      return usersAPI.getAll(params)
+    },
+    enabled: !!getCurrentSchoolId()
+  })
+
   // 🔹 Create Teacher
   const createTeacherMutation = useMutation({
     mutationFn: (data) => {
       const createData = { ...data, role: 'teacher' }
+      // For super admin, add schoolId to the request body
       if (user?.role === 'super_admin' && getCurrentSchoolId()) {
-        return api.post('/users', createData, { params: { schoolId: getCurrentSchoolId() } })
+        createData.schoolId = getCurrentSchoolId()
       }
       return usersAPI.create(createData)
     },
     onSuccess: (response) => {
+      // Invalidate both teachers list and stats
       queryClient.invalidateQueries(['teachers'])
+      queryClient.invalidateQueries(['teacher-stats'])
+      queryClient.refetchQueries(['teachers'])
       setIsCreateModalOpen(false)
       toast.success(`Teacher created successfully! Default password: ${response.data.defaultPassword}`)
     },
@@ -88,7 +105,9 @@ function Teachers() {
   const updateTeacherMutation = useMutation({
     mutationFn: ({ id, data }) => usersAPI.update(id, data),
     onSuccess: () => {
+      // Invalidate both teachers list and stats
       queryClient.invalidateQueries(['teachers'])
+      queryClient.invalidateQueries(['teacher-stats'])
       setSelectedTeacher(null)
       toast.success('Teacher updated successfully!')
     },
@@ -99,7 +118,9 @@ function Teachers() {
   const deleteTeacherMutation = useMutation({
     mutationFn: usersAPI.delete,
     onSuccess: () => {
+      // Invalidate both teachers list and stats
       queryClient.invalidateQueries(['teachers'])
+      queryClient.invalidateQueries(['teacher-stats'])
       toast.success('Teacher deactivated successfully!')
     },
     onError: (error) => toast.error(error.response?.data?.error || 'Failed to deactivate teacher')
@@ -165,7 +186,11 @@ function Teachers() {
   const teachers = teachersData?.data?.users || []
   const pagination = teachersData?.data?.pagination || {}
   const classes = Array.isArray(classesData?.data?.classes) ? classesData.data.classes : []
-  const teachersCount = teachers.length
+
+  // Stats from separate unfiltered query
+  const allTeachers = teacherStatsData?.data?.users || []
+  const teachersCount = allTeachers.length
+  const activeTeachersCount = allTeachers.filter(t => t.isActive).length
 
   // 🔹 UI Render
   return (
@@ -187,16 +212,16 @@ function Teachers() {
         actions={
           canManageTeachers
             ? [
-                {
-                  label: 'Add Teacher',
-                  variant: 'primary',
-                  icon: <PlusIcon className="h-5 w-5" />,
-                  onClick: () => {
-                    setSelectedTeacher(null)
-                    setIsCreateModalOpen(true)
-                  }
+              {
+                label: 'Add Teacher',
+                variant: 'primary',
+                icon: <PlusIcon className="h-5 w-5" />,
+                onClick: () => {
+                  setSelectedTeacher(null)
+                  setIsCreateModalOpen(true)
                 }
-              ]
+              }
+            ]
             : []
         }
       />
@@ -215,32 +240,91 @@ function Teachers() {
           <div>
             <p className="text-sm text-gray-500">Active</p>
             <p className="text-lg font-semibold">
-              {teachers.filter((t) => t.isActive).length}
+              {activeTeachersCount}
             </p>
           </div>
         </div>
       </div>
 
-      {/* 🔹 Filters */}
-      <div className="bg-white p-4 rounded-lg shadow flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 w-full">
-          <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search teacher..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
+      {/* 🔹 Search and Filters */}
+      <div className="bg-white rounded-lg shadow">
+        {/* Search Bar */}
+        <div className="p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 flex-1">
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search teacher..."
+              value={filters.search}
+              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              className="flex-1 border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-4 py-2 rounded flex items-center gap-2 transition-colors relative ${showFilters
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+          >
+            <FunnelIcon className="h-5 w-5" /> Filter
+            {(filters.active || filters.hasClass) && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {[filters.active, filters.hasClass].filter(Boolean).length}
+              </span>
+            )}
+          </button>
         </div>
-        <button
-          onClick={() => queryClient.invalidateQueries(['teachers'])}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2"
-        >
-          <FunnelIcon className="h-5 w-5" /> Filter
-        </button>
-      </div>
 
+        {/* Filter Dropdowns */}
+        {showFilters && (
+          <div className="px-4 pb-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+                <select
+                  value={filters.active}
+                  onChange={(e) => setFilters({ ...filters, active: e.target.value })}
+                  className="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Status</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+
+              {/* Class Assignment Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Class Assignment
+                </label>
+                <select
+                  value={filters.hasClass}
+                  onChange={(e) => setFilters({ ...filters, hasClass: e.target.value })}
+                  className="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">All Teachers</option>
+                  <option value="true">With Class</option>
+                  <option value="false">Without Class</option>
+                </select>
+              </div>
+
+              {/* Clear Filters */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => setFilters({ search: '', active: '', hasClass: '' })}
+                  className="w-full px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       {/* 🔹 Teachers Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
@@ -256,7 +340,7 @@ function Teachers() {
           <tbody className="divide-y divide-gray-100">
             {teachers.map((t) => (
               <tr key={t.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{t.name}</td>
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{`${t.firstName} ${t.lastName}`}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{t.email}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{t.phone || '-'}</td>
                 <td className="px-4 py-3 text-sm">
@@ -314,10 +398,11 @@ function Teachers() {
       {/* 🔹 Modals */}
       {isCreateModalOpen && (
         <UserModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
           user={selectedTeacher}
-          onSubmit={selectedTeacher ? handleUpdateTeacher : handleCreateTeacher}
+          onSave={selectedTeacher ? handleUpdateTeacher : handleCreateTeacher}
+          onClose={() => setIsCreateModalOpen(false)}
+          isLoading={createTeacherMutation.isLoading || updateTeacherMutation.isLoading}
+          userType="teacher"
           classes={classes}
         />
       )}

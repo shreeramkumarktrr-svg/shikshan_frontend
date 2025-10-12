@@ -20,8 +20,12 @@ function StudentAttendanceModal({ classId, date, onSave, onClose, isLoading }) {
 
   useEffect(() => {
     if (studentsData?.data) {
+      // Safely get students array - handle different response structures
+      const students = Array.isArray(studentsData.data.students) ? studentsData.data.students : 
+                       Array.isArray(studentsData.data) ? studentsData.data : []
+      
       // Initialize attendance records for all students
-      const initialRecords = studentsData.data.map(student => ({
+      const initialRecords = students.map(student => ({
         studentId: student.userId,
         status: 'present',
         period: period,

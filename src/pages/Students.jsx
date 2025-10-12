@@ -67,7 +67,7 @@ function Students() {
   const createStudentMutation = useMutation({
     mutationFn: (data) => usersAPI.create({ ...data, role: 'student' }),
     onSuccess: (response) => {
-      queryClient.invalidateQueries(['students'])
+      queryClient.invalidateQueries({ queryKey: ['students'] })
       setIsCreateModalOpen(false)
       toast.success(`Student created successfully! Default password: ${response.data.defaultPassword}`)
     },
@@ -80,7 +80,7 @@ function Students() {
   const updateStudentMutation = useMutation({
     mutationFn: ({ id, data }) => usersAPI.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['students'])
+      queryClient.invalidateQueries({ queryKey: ['students'] })
       setSelectedStudent(null)
       toast.success('Student updated successfully!')
     },
@@ -93,7 +93,7 @@ function Students() {
   const deleteStudentMutation = useMutation({
     mutationFn: usersAPI.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries(['students'])
+      queryClient.invalidateQueries({ queryKey: ['students'] })
       toast.success('Student deactivated successfully!')
     },
     onError: (error) => {
@@ -181,9 +181,16 @@ function Students() {
     )
   }
 
-  const students = studentsData?.data?.users || []
+  const rawStudents = studentsData?.data?.users || []
   const pagination = studentsData?.data?.pagination || {}
   const classes = Array.isArray(classesData?.data?.classes) ? classesData.data.classes : []
+
+  // Transform students data to flatten studentProfile
+  const students = rawStudents.map(student => ({
+    ...student,
+    class: student.studentProfile?.class || null,
+    rollNumber: student.studentProfile?.rollNumber || student.rollNumber
+  }))
 
   return (
     <div className="space-y-6">
