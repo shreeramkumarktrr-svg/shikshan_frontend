@@ -20,8 +20,7 @@ function UserPermissions({ user, onClose }) {
     canManageFees: false,
     canViewAllStudents: false,
     canExportData: false,
-    canManageComplaints: false,
-    canAccessSettings: false
+    canManageComplaints: false
   })
 
   useEffect(() => {
@@ -53,8 +52,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: true,
         canViewAllStudents: true,
         canExportData: true,
-        canManageComplaints: true,
-        canAccessSettings: true
+        canManageComplaints: true
       },
       school_admin: {
         canViewReports: true,
@@ -65,8 +63,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: true,
         canViewAllStudents: true,
         canExportData: true,
-        canManageComplaints: true,
-        canAccessSettings: true
+        canManageComplaints: true
       },
       principal: {
         canViewReports: true,
@@ -77,8 +74,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: false,
         canViewAllStudents: true,
         canExportData: true,
-        canManageComplaints: true,
-        canAccessSettings: false
+        canManageComplaints: true
       },
       teacher: {
         canViewReports: false,
@@ -89,8 +85,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: false,
         canViewAllStudents: false,
         canExportData: false,
-        canManageComplaints: false,
-        canAccessSettings: false
+        canManageComplaints: false
       },
       finance_officer: {
         canViewReports: true,
@@ -101,8 +96,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: true,
         canViewAllStudents: true,
         canExportData: true,
-        canManageComplaints: false,
-        canAccessSettings: false
+        canManageComplaints: false
       },
       support_staff: {
         canViewReports: false,
@@ -113,8 +107,7 @@ function UserPermissions({ user, onClose }) {
         canManageFees: false,
         canViewAllStudents: false,
         canExportData: false,
-        canManageComplaints: true,
-        canAccessSettings: false
+        canManageComplaints: true
       }
     }
 
@@ -127,8 +120,7 @@ function UserPermissions({ user, onClose }) {
       canManageFees: false,
       canViewAllStudents: false,
       canExportData: false,
-      canManageComplaints: false,
-      canAccessSettings: false
+      canManageComplaints: false
     }
   }
 
@@ -181,10 +173,9 @@ function UserPermissions({ user, onClose }) {
       ]
     },
     {
-      title: 'Support & Settings',
+      title: 'Support',
       permissions: [
-        { key: 'canManageComplaints', label: 'Manage Complaints', description: 'Handle and respond to complaints' },
-        { key: 'canAccessSettings', label: 'Access Settings', description: 'Modify system settings and configurations' }
+        { key: 'canManageComplaints', label: 'Manage Complaints', description: 'Handle and respond to complaints' }
       ]
     }
   ]

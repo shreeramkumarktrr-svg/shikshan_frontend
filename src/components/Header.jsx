@@ -82,13 +82,15 @@ function Header({ onMenuClick }) {
                   >
                     Your Profile
                   </a>
-                  <a
-                    href="/settings"
-                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    Settings
-                  </a>
+                  {(user?.role === 'principal' || user?.role === 'school_admin') && (
+                    <a
+                      href="/app/manage-subscription"
+                      className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Manage Subscription
+                    </a>
+                  )}
                   <button
                     onClick={() => {
                       logout()

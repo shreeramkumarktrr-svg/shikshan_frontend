@@ -1,6 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../utils/api';
+import UpdateFeePaymentsModal from './UpdateFeePaymentsModal';
+import StudentFeeUpdateModal from './StudentFeeUpdateModal';
 
-const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
+const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefresh }) => {
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showStudentUpdateModal, setShowStudentUpdateModal] = useState(false);
+  const [selectedStudentFee, setSelectedStudentFee] = useState(null);
+  const [fee, setFee] = useState(initialFee);
+  const [loading, setLoading] = useState(false);
+
+  // Function to refresh fee data
+  const refreshFeeData = async () => {
+    if (!initialFee?.id) {
+      console.log('⚠️ No fee ID available for refresh, calling parent refresh instead');
+      if (onRefresh) onRefresh();
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      console.log('🔄 Refreshing fee data for ID:', initialFee.id);
+      
+      const response = await api.get(`/fees/${initialFee.id}`);
+      console.log('✅ Refreshed fee data:', response.data);
+      
+      setFee(response.data);
+    } catch (error) {
+      console.error('❌ Error refreshing fee data:', error);
+      // If refresh fails, call parent refresh as fallback
+      if (onRefresh) onRefresh();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Refresh fee data when modal opens
+  useEffect(() => {
+    setFee(initialFee);
+    if (initialFee?.id) {
+      refreshFeeData();
+    }
+  }, [initialFee]);
   if (!fee) return null;
 
   const getStatusBadge = (status) => {
@@ -22,14 +63,15 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
     return new Date(dueDate) < new Date() && status !== 'paid';
   };
 
-  const totalStudents = fee.studentFees.length;
-  const paidStudents = fee.studentFees.filter(sf => sf.status === 'paid').length;
-  const partialStudents = fee.studentFees.filter(sf => sf.status === 'partial').length;
-  const pendingStudents = fee.studentFees.filter(sf => sf.status === 'pending').length;
-  const overdueStudents = fee.studentFees.filter(sf => isOverdue(fee.dueDate, sf.status)).length;
+  const studentFees = fee.studentFees || [];
+  const totalStudents = studentFees.length;
+  const paidStudents = studentFees.filter(sf => sf.status === 'paid').length;
+  const partialStudents = studentFees.filter(sf => sf.status === 'partial').length;
+  const pendingStudents = studentFees.filter(sf => sf.status === 'pending').length;
+  const overdueStudents = studentFees.filter(sf => isOverdue(fee.dueDate, sf.status)).length;
 
-  const totalAmount = fee.studentFees.reduce((sum, sf) => sum + parseFloat(sf.amount), 0);
-  const collectedAmount = fee.studentFees.reduce((sum, sf) => sum + parseFloat(sf.paidAmount), 0);
+  const totalAmount = studentFees.reduce((sum, sf) => sum + parseFloat(sf.amount || sf.fee?.amount || 0), 0);
+  const collectedAmount = studentFees.reduce((sum, sf) => sum + parseFloat(sf.paidAmount || 0), 0);
   const pendingAmount = totalAmount - collectedAmount;
 
   return (
@@ -38,7 +80,7 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-xl font-bold text-gray-900">{fee.title}</h3>
-            <p className="text-gray-600">{fee.class.name} - {fee.class.section}</p>
+            <p className="text-gray-600">{fee.class?.name} - {fee.class?.section}</p>
           </div>
           <button
             onClick={onClose}
@@ -58,7 +100,7 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
               <div><span className="font-medium">Amount:</span> ₹{fee.amount}</div>
               <div><span className="font-medium">Due Date:</span> {new Date(fee.dueDate).toLocaleDateString()}</div>
               <div><span className="font-medium">Status:</span> {getStatusBadge(fee.status)}</div>
-              <div><span className="font-medium">Created by:</span> {fee.creator.firstName} {fee.creator.lastName}</div>
+              <div><span className="font-medium">Created by:</span> {fee.creator?.firstName} {fee.creator?.lastName}</div>
               {fee.description && (
                 <div><span className="font-medium">Description:</span> {fee.description}</div>
               )}
@@ -98,8 +140,21 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
 
         {/* Student Fees List */}
         <div className="bg-white border rounded-lg overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b">
+          <div className="px-4 py-3 bg-gray-50 border-b flex justify-between items-center">
             <h4 className="font-semibold text-gray-900">Student Payment Status</h4>
+            <div className="flex items-center gap-2">
+              {loading && (
+                <div className="text-sm text-blue-600">Refreshing...</div>
+              )}
+              <button
+                onClick={refreshFeeData}
+                disabled={loading}
+                className="text-sm text-blue-600 hover:text-blue-800 disabled:text-gray-400"
+                title="Refresh data"
+              >
+                🔄 Refresh
+              </button>
+            </div>
           </div>
           <div className="max-h-96 overflow-y-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -128,8 +183,8 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {fee.studentFees.map((studentFee) => {
-                  const balance = parseFloat(studentFee.amount) - parseFloat(studentFee.paidAmount);
+                {studentFees.map((studentFee) => {
+                  const balance = parseFloat(studentFee.amount || studentFee.fee?.amount || 0) - parseFloat(studentFee.paidAmount || 0);
                   const isStudentOverdue = isOverdue(fee.dueDate, studentFee.status);
                   
                   return (
@@ -137,18 +192,18 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">
-                            {studentFee.student.firstName} {studentFee.student.lastName}
+                            {studentFee.student?.user?.firstName || studentFee.student?.firstName} {studentFee.student?.user?.lastName || studentFee.student?.lastName}
                           </div>
                           <div className="text-sm text-gray-500">
-                            Roll: {studentFee.student.rollNumber}
+                            Roll: {studentFee.student?.rollNumber}
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        ₹{parseFloat(studentFee.amount).toFixed(2)}
+                        ₹{parseFloat(studentFee.amount || studentFee.fee?.amount || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-green-600 font-medium">
-                        ₹{parseFloat(studentFee.paidAmount).toFixed(2)}
+                        ₹{parseFloat(studentFee.paidAmount || 0).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                         ₹{balance.toFixed(2)}
@@ -158,14 +213,25 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
                       </td>
                       {canManage && (
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                          {studentFee.status !== 'paid' && (
+                          <div className="flex flex-col gap-1">
                             <button
-                              onClick={() => onPayment(studentFee)}
-                              className="text-blue-600 hover:text-blue-900"
+                              onClick={() => {
+                                setSelectedStudentFee(studentFee);
+                                setShowStudentUpdateModal(true);
+                              }}
+                              className="text-indigo-600 hover:text-indigo-900"
                             >
-                              Record Payment
+                              Update
                             </button>
-                          )}
+                            {studentFee.status !== 'paid' && (
+                              <button
+                                onClick={() => onPayment(studentFee)}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                Quick Pay
+                              </button>
+                            )}
+                          </div>
                           {studentFee.paidDate && (
                             <div className="text-xs text-gray-500 mt-1">
                               Paid: {new Date(studentFee.paidDate).toLocaleDateString()}
@@ -181,7 +247,17 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
           </div>
         </div>
 
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-between mt-6">
+          <div>
+            {canManage && (
+              <button
+                onClick={() => setShowUpdateModal(true)}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+              >
+                Update Payments
+              </button>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
@@ -189,6 +265,47 @@ const FeeDetailModal = ({ fee, onClose, onPayment, canManage }) => {
             Close
           </button>
         </div>
+
+        {/* Update Payments Modal */}
+        {showUpdateModal && (
+          <UpdateFeePaymentsModal
+            fee={fee}
+            onClose={() => setShowUpdateModal(false)}
+            onSave={() => {
+              setShowUpdateModal(false);
+              // Refresh the fee data in the modal
+              refreshFeeData();
+              // Also refresh the parent component
+              if (onRefresh) onRefresh();
+            }}
+          />
+        )}
+
+        {/* Individual Student Update Modal */}
+        {showStudentUpdateModal && selectedStudentFee && (
+          <StudentFeeUpdateModal
+            studentFee={selectedStudentFee}
+            onClose={() => {
+              setShowStudentUpdateModal(false);
+              setSelectedStudentFee(null);
+            }}
+            onSave={() => {
+              setShowStudentUpdateModal(false);
+              setSelectedStudentFee(null);
+              
+              // For student views (synthetic fee objects), close modal and refresh parent
+              if (!initialFee?.studentFees || initialFee.studentFees.length === 1) {
+                console.log('🔄 Student view detected, closing modal and refreshing parent');
+                onClose();
+                if (onRefresh) onRefresh();
+              } else {
+                // For admin views, refresh the fee data in the modal
+                refreshFeeData();
+                if (onRefresh) onRefresh();
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );

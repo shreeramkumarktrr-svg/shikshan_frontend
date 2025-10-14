@@ -12,12 +12,11 @@ import {
   CloudIcon,
   DevicePhoneMobileIcon,
   CheckIcon,
-  ArrowRightIcon,
-  BookOpenIcon,
-  ComputerDesktopIcon,
+
   PresentationChartLineIcon
 } from '@heroicons/react/24/outline';
 import ContactModal from '../components/ContactModal';
+import InteractiveParticles from '../components/InteractiveParticles';
 
 const Landing = () => {
   const [showContactModal, setShowContactModal] = useState(false);
@@ -169,76 +168,9 @@ const Landing = () => {
               </p>
             </div>
 
-            {/* Right Illustration */}
+            {/* Interactive Particle System */}
             <div className="relative w-96 h-96 mx-auto">
-              {/* School building center */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-                <div className="w-32 h-32 bg-blue-600 rounded-2xl flex items-center justify-center mb-4 shadow-xl">
-                  <div className="text-white text-5xl">🏫</div>
-                </div>
-                {/* Dashboard/tablet */}
-                <div className="bg-white rounded-xl p-3 w-28 h-20 mx-auto shadow-xl border">
-                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg h-full flex items-center justify-center">
-                    <ChartBarIcon className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating school management elements */}
-              <div className="absolute top-8 left-8 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
-                <UserGroupIcon className="h-4 w-4" />
-                Students
-              </div>
-              <div className="absolute top-16 right-8 bg-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
-                <ClipboardDocumentListIcon className="h-4 w-4" />
-                Attendance
-              </div>
-              <div className="absolute bottom-20 left-4 bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CalendarIcon className="h-4 w-4" />
-                Homework
-              </div>
-              <div className="absolute bottom-8 right-8 bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-shadow">
-                <CurrencyDollarIcon className="h-4 w-4" />
-                Fees
-              </div>
-
-              {/* Report/Analytics window */}
-              <div className="absolute top-12 right-4 bg-white rounded-xl p-3 w-24 h-16 shadow-xl border">
-                <div className="space-y-1">
-                  <div className="h-1.5 bg-green-400 rounded w-full"></div>
-                  <div className="h-1.5 bg-blue-400 rounded w-3/4"></div>
-                  <div className="h-1.5 bg-orange-400 rounded w-1/2"></div>
-                  <div className="h-1.5 bg-purple-400 rounded w-2/3"></div>
-                </div>
-              </div>
-
-              {/* Mobile app */}
-              <div className="absolute bottom-12 left-12 bg-white rounded-xl p-2 w-12 h-16 shadow-xl border">
-                <div className="bg-gradient-to-b from-blue-100 to-blue-200 rounded-lg h-full flex items-center justify-center">
-                  <DevicePhoneMobileIcon className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-
-              {/* Teacher/Admin icon */}
-              <div className="absolute top-20 left-16 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl border hover:shadow-2xl transition-shadow">
-                <span className="text-lg">👩‍🏫</span>
-              </div>
-
-              {/* Student icon */}
-              <div className="absolute bottom-24 right-16 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl border hover:shadow-2xl transition-shadow">
-                <span className="text-lg">👨‍🎓</span>
-              </div>
-
-              {/* Parent icon */}
-              <div className="absolute top-32 right-20 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl border hover:shadow-2xl transition-shadow">
-                <span className="text-lg">👨‍👩‍👧‍👦</span>
-              </div>
-
-              {/* Subtle background decorative elements */}
-              <div className="absolute top-4 left-4 w-6 h-6 bg-blue-200 rounded-full opacity-40 animate-pulse"></div>
-              <div className="absolute top-8 right-12 w-4 h-4 bg-green-200 rounded-full opacity-40 animate-pulse" style={{ animationDelay: '1s' }}></div>
-              <div className="absolute bottom-4 left-8 w-3 h-3 bg-orange-200 rounded-full opacity-40 animate-pulse" style={{ animationDelay: '2s' }}></div>
-              <div className="absolute bottom-12 right-4 w-5 h-5 bg-purple-200 rounded-full opacity-40 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              <InteractiveParticles />
             </div>
           </div>
         </div>

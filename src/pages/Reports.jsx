@@ -97,10 +97,7 @@ function Reports() {
         promises.push(Promise.resolve({ data: null }))
       }
       
-      // User statistics
-      promises.push(
-        api.get('/users/stats').catch(err => ({ data: null, error: err }))
-      )
+
       
       // Attendance statistics
       promises.push(
@@ -134,7 +131,6 @@ function Reports() {
 
       const [
         schoolResponse,
-        usersResponse,
         attendanceResponse,
         homeworkResponse,
         eventsResponse,
@@ -144,7 +140,7 @@ function Reports() {
 
       setReportData({
         school: schoolResponse.data?.stats || null,
-        users: usersResponse.data || null,
+        users: schoolResponse.data?.stats?.users || null,
         attendance: attendanceResponse.data?.statistics || null,
         homework: homeworkResponse.data || null,
         events: eventsResponse.data || null,

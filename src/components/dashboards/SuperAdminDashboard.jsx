@@ -4,7 +4,10 @@ import api from '../../utils/api'
 import { 
   BuildingOfficeIcon,
   CurrencyDollarIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  PlusIcon,
+  DocumentTextIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import LoadingSpinner from '../LoadingSpinner'
@@ -224,27 +227,62 @@ const subscriptionData = Object.entries(subscriptionCounts)
         </ResponsiveCard>
       </CardGrid>
 
-      {/* Quick Stats Summary */}
-      <ResponsiveCard title="Platform Summary">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{totalSchools}</div>
-            <div className="text-sm text-gray-600">Total Schools</div>
+      {/* Quick Actions & Platform Summary */}
+      <CardGrid columns={2}>
+        <ResponsiveCard title="Quick Actions">
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={() => window.location.href = '/app/schools'}
+              className="btn-primary flex items-center justify-center"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add School
+            </button>
+            <button 
+              onClick={() => window.location.href = '/app/subscriptions'}
+              className="btn-outline flex items-center justify-center"
+            >
+              <DocumentTextIcon className="h-4 w-4 mr-2" />
+              Manage Plans
+            </button>
+            <button 
+              onClick={() => window.location.href = '/app/interested-visitors'}
+              className="btn-outline flex items-center justify-center"
+            >
+              <UsersIcon className="h-4 w-4 mr-2" />
+              View Inquiries
+            </button>
+            <button 
+              onClick={() => window.location.href = '/app/analytics'}
+              className="btn-outline flex items-center justify-center"
+            >
+              <ChartBarIcon className="h-4 w-4 mr-2" />
+              Analytics
+            </button>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{activeSchools}</div>
-            <div className="text-sm text-gray-600">Active Schools</div>
+        </ResponsiveCard>
+
+        <ResponsiveCard title="Platform Summary">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{totalSchools}</div>
+              <div className="text-sm text-gray-600">Total Schools</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{activeSchools}</div>
+              <div className="text-sm text-gray-600">Active Schools</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{visitorsStats.totalInquiries || 0}</div>
+              <div className="text-sm text-gray-600">Total Inquiries</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">{visitorsStats.statusCounts?.['Onboarded'] || 0}</div>
+              <div className="text-sm text-gray-600">Converted</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{visitorsStats.totalInquiries || 0}</div>
-            <div className="text-sm text-gray-600">Total Inquiries</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">{visitorsStats.statusCounts?.['Onboarded'] || 0}</div>
-            <div className="text-sm text-gray-600">Converted</div>
-          </div>
-        </div>
-      </ResponsiveCard>
+        </ResponsiveCard>
+      </CardGrid>
     </div>
   )
 }

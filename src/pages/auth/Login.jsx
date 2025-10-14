@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../../contexts/AuthContext'
 import LoadingSpinner from '../../components/LoadingSpinner'
 
 function Login() {
-  const [loginType, setLoginType] = useState('password') // 'password' or 'otp'
   const { login, isLoading, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -55,51 +54,21 @@ function Login() {
         </div>
 
         <div className="bg-white py-8 px-6 shadow rounded-lg">
-          {/* Login Type Toggle */}
-          <div className="flex rounded-lg bg-gray-100 p-1 mb-6">
-            <button
-              type="button"
-              onClick={() => setLoginType('password')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                loginType === 'password'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Password
-            </button>
-            <button
-              type="button"
-              onClick={() => setLoginType('otp')}
-              className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                loginType === 'otp'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              OTP
-            </button>
-          </div>
+
 
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-                {loginType === 'password' ? 'Email or Phone' : 'Phone Number'}
+                Email or Phone
               </label>
               <div className="mt-1">
                 <input
                   {...register('identifier', {
-                    required: 'This field is required',
-                    validate: (value) => {
-                      if (loginType === 'otp') {
-                        return /^\d{10,15}$/.test(value) || 'Please enter a valid phone number'
-                      }
-                      return true
-                    }
+                    required: 'This field is required'
                   })}
-                  type={loginType === 'otp' ? 'tel' : 'text'}
+                  type="text"
                   className={`input ${errors.identifier ? 'input-error' : ''}`}
-                  placeholder={loginType === 'password' ? 'Enter email or phone' : 'Enter phone number'}
+                  placeholder="Enter email or phone"
                 />
                 {errors.identifier && (
                   <p className="mt-1 text-sm text-red-600">{errors.identifier.message}</p>
@@ -107,57 +76,28 @@ function Login() {
               </div>
             </div>
 
-            {loginType === 'password' ? (
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="mt-1">
-                  <input
-                    {...register('password', {
-                      required: 'Password is required',
-                      minLength: {
-                        value: 6,
-                        message: 'Password must be at least 6 characters'
-                      }
-                    })}
-                    type="password"
-                    className={`input ${errors.password ? 'input-error' : ''}`}
-                    placeholder="Enter your password"
-                  />
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                  )}
-                </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  {...register('password', {
+                    required: 'Password is required',
+                    minLength: {
+                      value: 6,
+                      message: 'Password must be at least 6 characters'
+                    }
+                  })}
+                  type="password"
+                  className={`input ${errors.password ? 'input-error' : ''}`}
+                  placeholder="Enter your password"
+                />
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                )}
               </div>
-            ) : (
-              <div>
-                <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                  OTP
-                </label>
-                <div className="mt-1">
-                  <input
-                    {...register('otp', {
-                      required: 'OTP is required',
-                      pattern: {
-                        value: /^\d{6}$/,
-                        message: 'OTP must be 6 digits'
-                      }
-                    })}
-                    type="text"
-                    maxLength="6"
-                    className={`input ${errors.otp ? 'input-error' : ''}`}
-                    placeholder="Enter 6-digit OTP"
-                  />
-                  {errors.otp && (
-                    <p className="mt-1 text-sm text-red-600">{errors.otp.message}</p>
-                  )}
-                  <p className="mt-1 text-xs text-gray-500">
-                    For demo, use OTP: 123456
-                  </p>
-                </div>
-              </div>
-            )}
+            </div>
 
             <div>
               <button
@@ -176,13 +116,7 @@ function Login() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
+
           </form>
         </div>
       </div>

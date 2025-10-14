@@ -7,7 +7,10 @@ import {
   ClipboardDocumentListIcon,
   CalendarIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  CurrencyDollarIcon,
+  ChatBubbleLeftRightIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../LoadingSpinner'
 
@@ -269,17 +272,33 @@ function ParentDashboard() {
               </div>
               <div className="card-body">
                 <div className="grid grid-cols-2 gap-4">
-                  <button className="btn-primary">
+                  <button 
+                    onClick={() => window.location.href = '/app/homework'}
+                    className="btn-primary flex items-center justify-center"
+                  >
+                    <ChartBarIcon className="h-4 w-4 mr-2" />
                     View Progress
                   </button>
-                  <button className="btn-outline">
-                    Check Attendance
-                  </button>
-                  <button className="btn-outline">
-                    Contact Teacher
-                  </button>
-                  <button className="btn-outline">
+                  <button 
+                    onClick={() => window.location.href = '/app/fees'}
+                    className="btn-outline flex items-center justify-center"
+                  >
+                    <CurrencyDollarIcon className="h-4 w-4 mr-2" />
                     Pay Fees
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/app/complaints'}
+                    className="btn-outline flex items-center justify-center"
+                  >
+                    <ChatBubbleLeftRightIcon className="h-4 w-4 mr-2" />
+                    Contact School
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/app/events'}
+                    className="btn-outline flex items-center justify-center"
+                  >
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    School Events
                   </button>
                 </div>
               </div>

@@ -11,7 +11,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ResponsiveCard, { CardGrid, StatCard } from '../components/ResponsiveCard';
 import ResponsiveTable from '../components/ResponsiveTable';
 import PageHeader from '../components/PageHeader';
-import { FormInput, FormSelect } from '../components/ResponsiveForm';
+import { FormSelect } from '../components/ResponsiveForm';
 import { PlusIcon, CurrencyDollarIcon, ClockIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const Fees = () => {
@@ -47,13 +47,20 @@ const Fees = () => {
   }, [filters, user?.role]);
 
   const fetchFees = async () => {
+    // Don't fetch fees if user is not loaded yet
+    if (!user || !user.role) {
+      console.log('⏳ User not loaded yet, skipping fees fetch');
+      return;
+    }
+    
     try {
       setLoading(true);
       const params = new URLSearchParams();
       
       // For students, fetch their own fees
-      if (user?.role === 'student') {
+      if (user.role === 'student') {
         try {
+          console.log('📋 Fetching student fees via /my-fees');
           const response = await feesAPI.getMyFees();
           setFees(response.data.studentFees || []);
         } catch (error) {
@@ -91,21 +98,34 @@ const Fees = () => {
   };
 
   const fetchStats = async () => {
+    // Don't fetch stats if user is not loaded yet
+    if (!user || !user.role) {
+      console.log('⏳ User not loaded yet, skipping stats fetch');
+      return;
+    }
+    
     try {
-      if (user?.role === 'student') {
+      console.log('🔍 fetchStats called for user role:', user.role);
+      
+      if (user.role === 'student') {
+        console.log('📊 Fetching student stats via /my-stats');
         // Students get their own stats
         const response = await feesAPI.getMyStats();
         setStats(response.data);
       } else {
+        console.log('📊 Fetching general stats via /stats/overview for role:', user.role);
         // Admin/teachers get general stats
         const params = new URLSearchParams();
         if (filters.classId) params.append('classId', filters.classId);
         
+        console.log('📊 Stats URL:', `/fees/stats/overview?${params}`);
         const response = await api.get(`/fees/stats/overview?${params}`);
+        console.log('📊 Stats response:', response.data);
         setStats(response.data);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('❌ Error fetching stats:', error);
+      console.error('User role was:', user?.role);
       // Set default stats to prevent UI errors
       setStats({
         totalFees: 0,
@@ -170,7 +190,7 @@ const Fees = () => {
     );
   };
 
-  const canManageFees = ['school_admin', 'teacher'].includes(user?.role);
+  const canManageFees = ['school_admin', 'principal'].includes(user?.role);
   const canGenerateFees = ['school_admin', 'principal'].includes(user?.role);
   const isStudent = user?.role === 'student';
 
@@ -179,7 +199,7 @@ const Fees = () => {
     {
       key: 'fee',
       label: 'Fee Details',
-      render: (value, studentFee) => (
+      render: (_, studentFee) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{studentFee.fee?.title}</div>
           {studentFee.fee?.description && (
@@ -191,14 +211,14 @@ const Fees = () => {
     {
       key: 'amount',
       label: 'Amount',
-      render: (value, studentFee) => (
+      render: (_, studentFee) => (
         <div className="text-sm font-medium text-gray-900">₹{studentFee.fee?.amount}</div>
       )
     },
     {
       key: 'dueDate',
       label: 'Due Date',
-      render: (value, studentFee) => (
+      render: (_, studentFee) => (
         <div className="text-sm text-gray-900">
           {new Date(studentFee.fee?.dueDate).toLocaleDateString()}
         </div>
@@ -207,12 +227,12 @@ const Fees = () => {
     {
       key: 'status',
       label: 'Payment Status',
-      render: (value, studentFee) => getStatusBadge(studentFee.status)
+      render: (_, studentFee) => getStatusBadge(studentFee.status)
     },
     {
       key: 'paidAmount',
       label: 'Paid Amount',
-      render: (value, studentFee) => (
+      render: (_, studentFee) => (
         <div className="text-sm text-gray-900">
           ₹{studentFee.paidAmount || 0}
         </div>
@@ -221,9 +241,52 @@ const Fees = () => {
     {
       key: 'paidDate',
       label: 'Paid Date',
-      render: (value, studentFee) => (
+      render: (_, studentFee) => (
         <div className="text-sm text-gray-900">
           {studentFee.paidDate ? new Date(studentFee.paidDate).toLocaleDateString() : '-'}
+        </div>
+      )
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (_, studentFee) => (
+        <div className="flex flex-col gap-1">
+          {/* Temporarily disabled Pay Now for students */}
+          {false && studentFee.status !== 'paid' && (
+            <button
+              onClick={() => handlePayment(studentFee)}
+              className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+            >
+              Pay Now
+            </button>
+          )}
+          <button
+            onClick={() => {
+              // For students, we need to create a proper fee object from studentFee
+              const feeId = studentFee.fee?.id || studentFee.feeId;
+              const enhancedStudentFee = {
+                ...studentFee,
+                feeId: feeId // Ensure feeId is set for the update modal
+              };
+              
+              const feeForModal = {
+                id: feeId,
+                title: studentFee.fee?.title,
+                description: studentFee.fee?.description,
+                amount: studentFee.fee?.amount,
+                dueDate: studentFee.fee?.dueDate,
+                status: studentFee.fee?.status || 'active',
+                class: studentFee.fee?.class,
+                creator: studentFee.fee?.creator || { firstName: 'System', lastName: 'Admin' },
+                studentFees: [enhancedStudentFee] // Wrap the enhanced studentFee in an array
+              };
+              handleViewFee(feeForModal);
+            }}
+            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+          >
+            View Details
+          </button>
         </div>
       )
     }
@@ -234,7 +297,7 @@ const Fees = () => {
     {
       key: 'title',
       label: 'Fee Details',
-      render: (value, fee) => (
+      render: (_, fee) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{fee.title}</div>
           {fee.description && (
@@ -246,7 +309,7 @@ const Fees = () => {
     {
       key: 'class',
       label: 'Class',
-      render: (value, fee) => (
+      render: (_, fee) => (
         <div className="text-sm text-gray-900">
           {fee.class?.name} - {fee.class?.section}
         </div>
@@ -276,7 +339,7 @@ const Fees = () => {
     {
       key: 'collection',
       label: 'Collection',
-      render: (value, fee) => {
+      render: (_, fee) => {
         const totalStudents = fee.studentFees?.length || 0;
         const paidStudents = fee.studentFees?.filter(sf => sf.status === 'paid').length || 0;
         const collectionRate = totalStudents > 0 ? ((paidStudents / totalStudents) * 100).toFixed(1) : 0;
@@ -290,7 +353,7 @@ const Fees = () => {
     {
       key: 'actions',
       label: 'Actions',
-      render: (value, fee) => (
+      render: (_, fee) => (
         <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => handleViewFee(fee)}
@@ -480,6 +543,10 @@ const Fees = () => {
           onClose={() => setShowDetailModal(false)}
           onPayment={handlePayment}
           canManage={canManageFees}
+          onRefresh={() => {
+            fetchFees();
+            fetchStats();
+          }}
         />
       )}
 

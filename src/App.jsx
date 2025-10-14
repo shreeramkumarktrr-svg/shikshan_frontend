@@ -26,6 +26,7 @@ import Complaints from './pages/Complaints'
 import Fees from './pages/Fees'
 import Reports from './pages/Reports'
 import Profile from './pages/Profile'
+import ManageSubscription from './pages/ManageSubscription'
 import SubscriptionUpgrade from './pages/SubscriptionUpgrade'
 import Debug from './pages/Debug'
 
@@ -47,6 +48,11 @@ function App() {
             <Route index element={<Navigate to="/app/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="manage-subscription" element={
+              <ProtectedRoute roles={['principal', 'school_admin']}>
+                <ManageSubscription />
+              </ProtectedRoute>
+            } />
             
             {/* Super Admin routes */}
             <Route path="schools" element={

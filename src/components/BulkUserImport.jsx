@@ -52,6 +52,12 @@ function BulkUserImport({ onClose, userType, classes = [] }) {
           
           // Map CSV headers to our user fields
           switch (header) {
+            case 'name':
+              // Split full name into first and last name
+              const nameParts = value.trim().split(' ')
+              row.firstName = nameParts[0] || ''
+              row.lastName = nameParts.slice(1).join(' ') || nameParts[0] || 'Student'
+              break
             case 'first name':
             case 'firstname':
               row.firstName = value
@@ -61,51 +67,34 @@ function BulkUserImport({ onClose, userType, classes = [] }) {
               row.lastName = value
               break
             case 'email':
-              row.email = value
+              row.email = value === '-' ? '' : value
               break
             case 'phone':
             case 'phone number':
-              row.phone = value
+              row.phone = value === '-' ? '' : value
               break
             case 'role':
               row.role = value.toLowerCase().replace(' ', '_')
-              break
-            case 'date of birth':
-            case 'dob':
-              row.dateOfBirth = value
-              break
-            case 'gender':
-              row.gender = value.toLowerCase()
-              break
-            case 'address':
-              row.address = value
-              break
-            case 'employee id':
-            case 'employeeid':
-              row.employeeId = value
               break
             case 'roll number':
             case 'rollnumber':
               row.rollNumber = value
               break
             case 'class':
-            case 'class name':
-              row.className = value
+              // Handle class format like "10 A" or "10A"
+              if (value && value !== '-') {
+                const classMatch = value.match(/^(\d+)\s*([A-Z]?)$/i)
+                if (classMatch) {
+                  row.classNameTemp = classMatch[1] // Class number (e.g., "10")
+                  row.sectionTemp = classMatch[2] || 'A' // Section (e.g., "A")
+                } else {
+                  row.classNameTemp = value
+                }
+              }
               break
-            case 'section':
-              row.section = value
-              break
-            case 'parent name':
-            case 'parentname':
-              row.parentName = value
-              break
-            case 'parent contact':
-            case 'parentcontact':
-              row.parentContact = value
-              break
-            case 'parent email':
-            case 'parentemail':
-              row.parentEmail = value
+            case 'employee id':
+            case 'employeeid':
+              row.employeeId = value === '-' ? '' : value
               break
             default:
               // Ignore unknown headers
@@ -113,21 +102,43 @@ function BulkUserImport({ onClose, userType, classes = [] }) {
           }
         })
 
-        if (row.firstName && row.lastName && row.phone) {
+        if (row.firstName && row.lastName) {
           // Set role based on userType if provided
           if (userType) {
             row.role = userType
           }
           
           // Find class ID if class name and section are provided
-          if (row.className && row.section && classes.length > 0) {
-            const matchingClass = classes.find(cls => 
-              cls.name.toLowerCase() === row.className.toLowerCase() && 
-              cls.section.toLowerCase() === row.section.toLowerCase()
-            )
+          if (row.classNameTemp && classes.length > 0) {
+            let matchingClass;
+            if (row.sectionTemp) {
+              // Match both class name and section
+              matchingClass = classes.find(cls => 
+                cls.name.toLowerCase() === row.classNameTemp.toLowerCase() && 
+                cls.section.toLowerCase() === row.sectionTemp.toLowerCase()
+              )
+            } else {
+              // Match just class name if no section provided
+              matchingClass = classes.find(cls => 
+                cls.name.toLowerCase() === row.classNameTemp.toLowerCase()
+              )
+            }
+            
             if (matchingClass) {
               row.classId = matchingClass.id
+              row.classDisplayName = `${matchingClass.name} ${matchingClass.section || ''}`.trim()
+            } else {
+              row.classDisplayName = `${row.classNameTemp} ${row.sectionTemp || ''}`.trim() + ' (Not Found)'
             }
+          }
+          
+          // Remove temporary fields (keep classDisplayName for preview)
+          delete row.classNameTemp
+          delete row.sectionTemp
+          
+          // Generate phone number if not provided (for students)
+          if (!row.phone && userType === 'student') {
+            row.phone = `9999${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`
           }
           
           data.push(row)
@@ -142,26 +153,33 @@ function BulkUserImport({ onClose, userType, classes = [] }) {
   }
 
   const handleImport = () => {
-    bulkImportMutation.mutate({ users: csvData })
+    // Clean the data before sending to backend - remove display-only fields
+    const cleanedData = csvData.map(user => {
+      const { classDisplayName, ...cleanUser } = user
+      return cleanUser
+    })
+    
+    bulkImportMutation.mutate({ users: cleanedData })
   }
 
   const downloadTemplate = () => {
     let template = ''
     
     if (userType === 'student') {
-      template = `First Name,Last Name,Email,Phone,Date of Birth,Gender,Address,Roll Number,Class,Section,Parent Name,Parent Contact,Parent Email
-John,Doe,john.doe@example.com,1234567890,2005-01-01,male,123 Main St,001,10,A,John Doe Sr,9876543210,parent@example.com
-Jane,Smith,jane.smith@example.com,0987654321,2005-05-15,female,456 Oak Ave,002,10,A,Jane Smith Sr,8765432109,parent2@example.com
+      template = `NAME,EMAIL,PHONE,ROLE,ROLL NUMBER,CLASS
+John Doe,-,9999219980,student,1,10 A
+Jane Smith,-,9999398329,student,2,10 A
+Mike Johnson,-,9999715662,student,3,10 A
 `
     } else if (userType === 'teacher') {
-      template = `First Name,Last Name,Email,Phone,Date of Birth,Gender,Address,Employee ID
-John,Doe,john.doe@example.com,1234567890,1990-01-01,male,123 Main St,EMP001
-Jane,Smith,jane.smith@example.com,0987654321,1985-05-15,female,456 Oak Ave,EMP002
+      template = `NAME,EMAIL,PHONE,ROLE,EMPLOYEE ID
+John Doe,john.doe@example.com,9999123456,teacher,EMP001
+Jane Smith,jane.smith@example.com,9999654321,teacher,EMP002
 `
     } else {
-      template = `First Name,Last Name,Email,Phone,Role,Date of Birth,Gender,Address,Employee ID
-John,Doe,john.doe@example.com,1234567890,teacher,1990-01-01,male,123 Main St,EMP001
-Jane,Smith,jane.smith@example.com,0987654321,student,2005-05-15,female,456 Oak Ave,
+      template = `NAME,EMAIL,PHONE,ROLE,ROLL NUMBER,CLASS
+John Doe,john.doe@example.com,9999123456,teacher,-,-
+Jane Smith,-,9999654321,student,1,10 A
 `
     }
     
@@ -203,25 +221,14 @@ Jane,Smith,jane.smith@example.com,0987654321,student,2005-05-15,female,456 Oak A
                 </h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   <li>• Upload a CSV file with {userType || 'user'} data</li>
-                  <li>• Required columns: First Name, Last Name, Phone{!userType && ', Role'}</li>
-                  {userType === 'student' ? (
-                    <>
-                      <li>• Optional columns: Email, Date of Birth, Gender, Address, Roll Number, Class, Section</li>
-                      <li>• Parent info: Parent Name, Parent Contact, Parent Email</li>
-                      <li>• Class assignment: Use Class and Section columns to auto-assign</li>
-                    </>
-                  ) : userType === 'teacher' ? (
-                    <>
-                      <li>• Optional columns: Email, Date of Birth, Gender, Address, Employee ID</li>
-                      <li>• Employee ID will be auto-generated if not provided</li>
-                    </>
-                  ) : (
-                    <>
-                      <li>• Optional columns: Email, Date of Birth, Gender, Address, Employee ID</li>
-                      <li>• Valid roles: teacher, student, parent, finance_officer, support_staff</li>
-                    </>
-                  )}
+                  <li>• Required columns: NAME, ROLE, ROLL NUMBER, CLASS</li>
+                  <li>• Optional columns: EMAIL, PHONE</li>
+                  <li>• Use "-" for empty EMAIL or PHONE fields</li>
+                  <li>• CLASS format: "10 A" or "9 B" (class number + section)</li>
+                  <li>• Phone numbers will be auto-generated if empty or "-"</li>
+                  <li>• Email can be added later to activate student accounts</li>
                   <li>• Default passwords will be generated (firstname123)</li>
+                  <li>• Students can update their details later through their profile</li>
                 </ul>
               </div>
 
@@ -309,7 +316,10 @@ Jane,Smith,jane.smith@example.com,0987654321,student,2005-05-15,female,456 Oak A
                         Role
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Employee ID
+                        Roll Number
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Class
                       </th>
                     </tr>
                   </thead>
@@ -323,15 +333,18 @@ Jane,Smith,jane.smith@example.com,0987654321,student,2005-05-15,female,456 Oak A
                           {user.email || '-'}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {user.phone}
+                          {user.phone || 'Auto-generated'}
                         </td>
                         <td className="px-4 py-3 text-sm">
                           <span className="badge badge-primary">
-                            {user.role.replace('_', ' ')}
+                            {(user.role || 'student').replace('_', ' ')}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {user.employeeId || '-'}
+                          {user.rollNumber || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {user.classDisplayName || (user.classId ? 'Assigned' : 'Not assigned')}
                         </td>
                       </tr>
                     ))}

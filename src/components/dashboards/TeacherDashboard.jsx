@@ -6,7 +6,9 @@ import {
   ClipboardDocumentListIcon,
   BookOpenIcon,
   CalendarIcon,
-  ClockIcon
+  ClockIcon,
+  PlusIcon,
+  CheckCircleIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../LoadingSpinner'
 
@@ -232,17 +234,33 @@ function TeacherDashboard() {
           </div>
           <div className="card-body">
             <div className="grid grid-cols-2 gap-4">
-              <button className="btn-primary">
+              <button 
+                onClick={() => window.location.href = '/app/attendance'}
+                className="btn-primary flex items-center justify-center"
+              >
+                <CheckCircleIcon className="h-4 w-4 mr-2" />
                 Mark Attendance
               </button>
-              <button className="btn-outline">
+              <button 
+                onClick={() => window.location.href = '/app/homework'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
                 Assign Homework
               </button>
-              <button className="btn-outline">
-                Grade Submissions
+              <button 
+                onClick={() => window.location.href = '/app/students'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <AcademicCapIcon className="h-4 w-4 mr-2" />
+                View Students
               </button>
-              <button className="btn-outline">
-                View Timetable
+              <button 
+                onClick={() => window.location.href = '/app/classes'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <ClipboardDocumentListIcon className="h-4 w-4 mr-2" />
+                My Classes
               </button>
             </div>
           </div>

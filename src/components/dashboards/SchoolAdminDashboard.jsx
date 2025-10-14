@@ -5,7 +5,10 @@ import {
   AcademicCapIcon,
   ClipboardDocumentListIcon,
   CalendarIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ChartBarIcon,
+  CurrencyDollarIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../LoadingSpinner'
 
@@ -171,17 +174,33 @@ function SchoolAdminDashboard() {
           </div>
           <div className="card-body">
             <div className="grid grid-cols-2 gap-4">
-              <button className="btn-primary">
+              <button 
+                onClick={() => window.location.href = '/app/teachers'}
+                className="btn-primary flex items-center justify-center"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
                 Add Teacher
               </button>
-              <button className="btn-outline">
-                Create Class
+              <button 
+                onClick={() => window.location.href = '/app/classes'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <AcademicCapIcon className="h-4 w-4 mr-2" />
+                Manage Classes
               </button>
-              <button className="btn-outline">
+              <button 
+                onClick={() => window.location.href = '/app/fees'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <CurrencyDollarIcon className="h-4 w-4 mr-2" />
+                Fee Management
+              </button>
+              <button 
+                onClick={() => window.location.href = '/app/reports'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <ChartBarIcon className="h-4 w-4 mr-2" />
                 View Reports
-              </button>
-              <button className="btn-outline">
-                Manage Events
               </button>
             </div>
           </div>

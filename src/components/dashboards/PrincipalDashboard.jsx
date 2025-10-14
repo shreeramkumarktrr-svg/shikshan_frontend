@@ -250,17 +250,33 @@ function PrincipalDashboard() {
           </div>
           <div className="card-body">
             <div className="grid grid-cols-2 gap-4">
-              <button className="btn-primary">
-                Staff Meeting
+              <button 
+                onClick={() => window.location.href = '/app/teachers'}
+                className="btn-primary flex items-center justify-center"
+              >
+                <UserGroupIcon className="h-4 w-4 mr-2" />
+                Manage Teachers
               </button>
-              <button className="btn-outline">
-                Academic Review
+              <button 
+                onClick={() => window.location.href = '/app/reports'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <ChartBarIcon className="h-4 w-4 mr-2" />
+                View Reports
               </button>
-              <button className="btn-outline">
-                Generate Reports
+              <button 
+                onClick={() => window.location.href = '/app/events'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Create Event
               </button>
-              <button className="btn-outline">
-                School Announcements
+              <button 
+                onClick={() => window.location.href = '/app/students'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <AcademicCapIcon className="h-4 w-4 mr-2" />
+                View Students
               </button>
             </div>
           </div>

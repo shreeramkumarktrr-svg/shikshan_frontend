@@ -214,7 +214,78 @@ function StudentDashboard() {
             )}
           </div>
         </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
+          </div>
+          <div className="card-body">
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => window.location.href = '/app/homework'}
+                className="btn-primary flex items-center justify-center"
+              >
+                <BookOpenIcon className="h-4 w-4 mr-2" />
+                View Homework
+              </button>
+              <button 
+                onClick={() => window.location.href = '/app/events'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                School Events
+              </button>
+              <button 
+                onClick={() => window.location.href = '/app/complaints'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <ExclamationCircleIcon className="h-4 w-4 mr-2" />
+                Report Issue
+              </button>
+              <button 
+                onClick={() => window.location.href = '/app/profile'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <AcademicCapIcon className="h-4 w-4 mr-2" />
+                My Profile
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Alerts */}
+      {overdueHomework > 0 && (
+        <div className="card border-l-4 border-red-400 bg-red-50">
+          <div className="card-body">
+            <div className="flex items-center">
+              <ExclamationCircleIcon className="h-5 w-5 text-red-400 mr-2" />
+              <div>
+                <h4 className="text-sm font-medium text-red-800">Overdue Homework</h4>
+                <p className="text-sm text-red-700">
+                  You have {overdueHomework} overdue homework assignment{overdueHomework > 1 ? 's' : ''}. Please submit them as soon as possible.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {attendanceRate < 75 && (
+        <div className="card border-l-4 border-yellow-400 bg-yellow-50">
+          <div className="card-body">
+            <div className="flex items-center">
+              <ExclamationCircleIcon className="h-5 w-5 text-yellow-400 mr-2" />
+              <div>
+                <h4 className="text-sm font-medium text-yellow-800">Low Attendance</h4>
+                <p className="text-sm text-yellow-700">
+                  Your attendance is {attendanceRate}%. Try to maintain at least 75% attendance.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

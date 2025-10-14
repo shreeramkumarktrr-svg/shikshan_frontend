@@ -4,7 +4,8 @@ import { eventsAPI } from '../../utils/api'
 import { 
   CalendarIcon,
   UserIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  CreditCardIcon
 } from '@heroicons/react/24/outline'
 import LoadingSpinner from '../LoadingSpinner'
 
@@ -134,18 +135,33 @@ function DefaultDashboard() {
           </div>
           <div className="card-body">
             <div className="grid grid-cols-2 gap-4">
-              <button className="btn-outline">
+              <button 
+                onClick={() => window.location.href = '/app/profile'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <UserIcon className="h-4 w-4 mr-2" />
                 View Profile
               </button>
-              <button className="btn-outline">
+              <button 
+                onClick={() => window.location.href = '/app/events'}
+                className="btn-outline flex items-center justify-center"
+              >
+                <CalendarIcon className="h-4 w-4 mr-2" />
                 View Events
               </button>
-              <button className="btn-outline">
+              <button className="btn-outline flex items-center justify-center">
+                <BuildingOfficeIcon className="h-4 w-4 mr-2" />
                 Contact Support
               </button>
-              <button className="btn-outline">
-                Settings
-              </button>
+              {(user?.role === 'principal' || user?.role === 'school_admin') && (
+                <button 
+                  onClick={() => window.location.href = '/app/manage-subscription'}
+                  className="btn-outline flex items-center justify-center"
+                >
+                  <CreditCardIcon className="h-4 w-4 mr-2" />
+                  Manage Subscription
+                </button>
+              )}
             </div>
           </div>
         </div>
