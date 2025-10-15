@@ -188,7 +188,7 @@ function InterestedVisitors() {
           <div className="space-y-1">
             <div className="flex items-center text-sm text-gray-900">
               <EnvelopeIcon className="h-4 w-4 mr-1 text-gray-400" />
-              <a href={`mailto:${inquiry.email || ''}`} className="hover:text-primary-600">
+              <a href={`mailto:${inquiry.email || ''}`} className="hover:text-primary-600 truncate">
                 {inquiry.email || 'N/A'}
               </a>
             </div>
@@ -208,7 +208,7 @@ function InterestedVisitors() {
       render: (value, inquiry) => {
         if (!inquiry) return <div>-</div>
         return (
-          <div className="font-medium text-gray-900">{inquiry.schoolName || 'N/A'}</div>
+          <div className="font-medium text-gray-900 truncate">{inquiry.schoolName || 'N/A'}</div>
         )
       }
     },
@@ -264,12 +264,80 @@ function InterestedVisitors() {
     }
   ]
 
+  // Mobile Card Component for inquiries
+  const InquiryCard = ({ inquiry }) => (
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-gray-900 truncate">{inquiry.name || 'N/A'}</div>
+          {inquiry.designation && (
+            <div className="text-sm text-gray-500 truncate">{inquiry.designation}</div>
+          )}
+        </div>
+        <div className="flex space-x-2 ml-2">
+          <button
+            onClick={() => openDetailModal(inquiry)}
+            className="text-gray-400 hover:text-gray-600"
+            title="View Details"
+          >
+            <EyeIcon className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => openStatusModal(inquiry)}
+            className="text-primary-400 hover:text-primary-600"
+            title="Update Status"
+          >
+            <PencilIcon className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => openDeleteModal(inquiry)}
+            className="text-red-400 hover:text-red-600"
+            title="Delete"
+          >
+            <TrashIcon className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-16 flex-shrink-0">School:</span>
+          <span className="text-xs text-gray-900 flex-1 truncate">{inquiry.schoolName || 'N/A'}</span>
+        </div>
+        
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-16 flex-shrink-0">Email:</span>
+          <a href={`mailto:${inquiry.email || ''}`} className="text-xs text-primary-600 hover:text-primary-500 flex-1 truncate">
+            {inquiry.email || 'N/A'}
+          </a>
+        </div>
+        
+        <div className="flex items-center">
+          <span className="text-xs text-gray-500 w-16 flex-shrink-0">Phone:</span>
+          <a href={`tel:${inquiry.phone || ''}`} className="text-xs text-primary-600 hover:text-primary-500">
+            {inquiry.phone || 'N/A'}
+          </a>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-xs text-gray-500 w-16 flex-shrink-0">Status:</span>
+            {getStatusBadge(inquiry.status || 'Pending')}
+          </div>
+          <span className="text-xs text-gray-500">
+            {formatDate(inquiry.createdAt)}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+
   if (loading && inquiries.length === 0) {
     return <LoadingSpinner />
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       <PageHeader
         title="Interested Visitors"
         subtitle="Manage inquiries from the landing page contact form"
@@ -283,20 +351,20 @@ function InterestedVisitors() {
 
       {/* Stats Cards */}
       {stats.statusCounts && (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {STATUS_OPTIONS.map((status) => (
-            <ResponsiveCard key={status.value} className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+            <ResponsiveCard key={status.value} className="text-center p-3 sm:p-4">
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">
                 {stats.statusCounts[status.value] || 0}
               </div>
-              <div className="text-sm text-gray-600">{status.label}</div>
+              <div className="text-xs sm:text-sm text-gray-600">{status.label}</div>
             </ResponsiveCard>
           ))}
         </div>
       )}
 
       {/* Filters */}
-      <ResponsiveCard>
+      <ResponsiveCard className="p-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -330,77 +398,115 @@ function InterestedVisitors() {
         </div>
       </ResponsiveCard>
 
-      {/* Inquiries Table */}
-      <ResponsiveCard>
-        <ResponsiveTable
-          data={inquiries}
-          columns={columns}
-          loading={loading}
-          emptyMessage="No inquiries found"
-        />
+      {/* Inquiries Table - Desktop */}
+      <div className="hidden lg:block">
+        <ResponsiveCard>
+          <ResponsiveTable
+            data={inquiries}
+            columns={columns}
+            loading={loading}
+            emptyMessage="No inquiries found"
+          />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-            <div className="flex flex-1 justify-between sm:hidden">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-            <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm text-gray-700">
-                  Showing <span className="font-medium">{((currentPage - 1) * 10) + 1}</span> to{' '}
-                  <span className="font-medium">{Math.min(currentPage * 10, totalInquiries)}</span> of{' '}
-                  <span className="font-medium">{totalInquiries}</span> results
-                </p>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
               </div>
-              <div>
-                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{((currentPage - 1) * 10) + 1}</span> to{' '}
+                    <span className="font-medium">{Math.min(currentPage * 10, totalInquiries)}</span> of{' '}
+                    <span className="font-medium">{totalInquiries}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                     <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                        page === currentPage
-                          ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
-                          : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                      }`}
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
                     >
-                      {page}
+                      Previous
                     </button>
-                  ))}
-                  <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </nav>
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                          page === currentPage
+                            ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
+                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </nav>
+                </div>
               </div>
             </div>
+          )}
+        </ResponsiveCard>
+      </div>
+
+      {/* Inquiries Cards - Mobile & Tablet */}
+      <div className="lg:hidden space-y-4">
+        {inquiries.map((inquiry) => (
+          <InquiryCard key={inquiry.id} inquiry={inquiry} />
+        ))}
+        
+        {inquiries.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No inquiries found</p>
           </div>
         )}
-      </ResponsiveCard>
+
+        {/* Mobile Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Detail Modal */}
       <ResponsiveModal
@@ -411,7 +517,7 @@ function InterestedVisitors() {
       >
         {selectedInquiry && (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Name</label>
                 <p className="mt-1 text-sm text-gray-900">{selectedInquiry.name}</p>
@@ -511,18 +617,18 @@ function InterestedVisitors() {
               />
             </div>
             
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 type="button"
                 onClick={() => setShowStatusModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleStatusUpdate}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 w-full sm:w-auto"
               >
                 Update Status
               </button>
@@ -545,18 +651,18 @@ function InterestedVisitors() {
               This action cannot be undone.
             </p>
             
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 w-full sm:w-auto"
               >
                 Delete
               </button>

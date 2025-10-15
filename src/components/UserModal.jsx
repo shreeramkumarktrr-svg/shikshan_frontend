@@ -108,26 +108,26 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
   ]
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {user ? 'Edit User' : 'Add New User'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Basic Information */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Basic Information</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   First Name *
@@ -165,7 +165,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
@@ -210,7 +210,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
 
             {/* Password field for new users */}
             {!user && (
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password *
                 </label>
@@ -248,11 +248,11 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
 
           {/* Role and Personal Details */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Role & Personal Details</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Role & Personal Details</h3>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {!userType && (
-                <div>
+                <div className="sm:col-span-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Role *
                   </label>
@@ -300,7 +300,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Date of Birth
@@ -358,11 +358,11 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {/* Class Assignment */}
           {(userType === 'student' || userType === 'teacher') && classes.length > 0 && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                 {userType === 'student' ? 'Class Assignment' : 'Class Teacher Assignment'}
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {userType === 'student' ? 'Assign to Class' : 'Class to Teach'}
@@ -378,7 +378,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 </div>
 
                 {userType === 'teacher' && (
-                  <div className="flex items-center">
+                  <div className="flex items-center pt-6 sm:pt-0">
                     <label className="flex items-center">
                       <input
                         type="checkbox"
@@ -398,16 +398,16 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {/* Subjects (for teachers) */}
           {(userType === 'teacher' || watchRole === 'teacher') && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Subjects</h3>
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Subjects</h3>
               <div className="space-y-2">
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {commonSubjects.map((subject) => (
                     <label key={subject} className="flex items-center">
                       <input
                         type="checkbox"
                         value={subject}
                         {...register('subjects')}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
                       />
                       <span className="ml-2 text-sm text-gray-700">{subject}</span>
                     </label>
@@ -420,9 +420,9 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           {/* Parent Information (for students) */}
           {userType === 'student' && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Parent Information</h3>
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Parent Information</h3>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Parent/Guardian Name
@@ -456,7 +456,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
                 </div>
               </div>
 
-              <div className="mt-4">
+              <div className="mt-3 sm:mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Parent Email (Optional)
                 </label>
@@ -480,7 +480,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
 
           {/* Password Note for existing users */}
           {user && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 sm:p-4">
               <p className="text-sm text-yellow-800">
                 <strong>Note:</strong> To change the password for this user, use the password management feature from the user details page.
               </p>
@@ -488,18 +488,18 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
           )}
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn-outline"
+              className="btn-outline w-full sm:w-auto order-2 sm:order-1"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto order-1 sm:order-2"
               disabled={isLoading}
             >
               {isLoading ? (

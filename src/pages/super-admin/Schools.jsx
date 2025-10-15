@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { 
-  PlusIcon, 
-  MagnifyingGlassIcon, 
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
   FunnelIcon,
   EyeIcon,
-  PencilIcon,
   TrashIcon,
   BuildingOfficeIcon,
   UserGroupIcon,
@@ -40,7 +39,7 @@ function Schools() {
         ...(searchTerm && { search: searchTerm }),
         ...(statusFilter !== 'all' && { status: statusFilter })
       }
-      
+
       const response = await api.get('/schools', { params })
       setSchools(response.data.schools)
       setPagination(response.data.pagination)
@@ -110,68 +109,68 @@ function Schools() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Schools Management</h1>
-          <p className="text-gray-600">Manage all schools in the platform</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Schools Management</h1>
+          <p className="text-sm sm:text-base text-gray-600">Manage all schools in the platform</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center w-full sm:w-auto"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
-          Add School
+          <span className="sm:inline">Add School</span>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <BuildingOfficeIcon className="h-6 w-6 text-blue-600" />
+            <div className="p-2 sm:p-3 bg-blue-100 rounded-full">
+              <BuildingOfficeIcon className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Schools</p>
-              <p className="text-2xl font-bold text-gray-900">{schools.length}</p>
+            <div className="ml-2 sm:ml-4">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Schools</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">{schools.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-full">
-              <UserGroupIcon className="h-6 w-6 text-green-600" />
+            <div className="p-2 sm:p-3 bg-green-100 rounded-full">
+              <UserGroupIcon className="h-4 w-4 sm:h-6 sm:w-6 text-green-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Schools</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-2 sm:ml-4">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Active Schools</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
                 {schools.filter(s => s.subscriptionStatus === 'active').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <CalendarIcon className="h-6 w-6 text-yellow-600" />
+            <div className="p-2 sm:p-3 bg-yellow-100 rounded-full">
+              <CalendarIcon className="h-4 w-4 sm:h-6 sm:w-6 text-yellow-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Trial Schools</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-2 sm:ml-4">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Trial Schools</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
                 {schools.filter(s => s.subscriptionStatus === 'trial').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-full">
-              <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+            <div className="p-2 sm:p-3 bg-red-100 rounded-full">
+              <ExclamationTriangleIcon className="h-4 w-4 sm:h-6 sm:w-6 text-red-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Suspended</p>
-              <p className="text-2xl font-bold text-gray-900">
+            <div className="ml-2 sm:ml-4">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Suspended</p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
                 {schools.filter(s => s.subscriptionStatus === 'suspended').length}
               </p>
             </div>
@@ -211,8 +210,8 @@ function Schools() {
         </div>
       </div>
 
-      {/* Schools Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Schools Table - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -265,8 +264,8 @@ function Schools() {
                       {school.subscription && `₹${school.subscription.price}/${school.subscription.billingCycle}`}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {school.subscriptionExpiresAt ? 
-                        `Expires: ${new Date(school.subscriptionExpiresAt).toLocaleDateString()}` : 
+                      {school.subscriptionExpiresAt ?
+                        `Expires: ${new Date(school.subscriptionExpiresAt).toLocaleDateString()}` :
                         'No expiry'
                       }
                     </div>
@@ -305,15 +304,90 @@ function Schools() {
             </tbody>
           </table>
         </div>
-
-        {schools.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No schools found</h3>
-            <p className="mt-1 text-sm text-gray-500">Get started by creating a new school.</p>
-          </div>
-        )}
       </div>
+
+      {/* Schools Cards - Mobile & Tablet */}
+      <div className="lg:hidden space-y-4">
+        {schools.map((school) => (
+          <div key={school.id} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 h-10 w-10">
+                  <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                    <BuildingOfficeIcon className="h-6 w-6 text-primary-600" />
+                  </div>
+                </div>
+                <div className="ml-3">
+                  <div className="text-sm font-medium text-gray-900">{school.name}</div>
+                  <div className="text-xs text-gray-500">Est. {school.establishedYear || 'N/A'}</div>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Link
+                  to={`/app/schools/${school.id}`}
+                  className="text-blue-600 hover:text-blue-900"
+                >
+                  <EyeIcon className="h-5 w-5" />
+                </Link>
+                <button
+                  onClick={() => handleDeactivateSchool(school.id)}
+                  className="text-red-600 hover:text-red-900"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-start">
+                <span className="text-xs text-gray-500 w-16 flex-shrink-0">Contact:</span>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-900">{school.email}</div>
+                  <div className="text-xs text-gray-500">{school.phone || 'No phone'}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <span className="text-xs text-gray-500 w-16 flex-shrink-0">Plan:</span>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanColor(school.subscriptionPlan)}`}>
+                  {school.subscription?.name || school.subscriptionPlan}
+                </span>
+              </div>
+
+              <div className="flex items-start">
+                <span className="text-xs text-gray-500 w-16 flex-shrink-0">Users:</span>
+                <div className="text-xs text-gray-900 flex-1">
+                  Total: {school.userCounts?.total || 0} (S: {school.userCounts?.students || 0} | T: {school.userCounts?.teachers || 0})
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <span className="text-xs text-gray-500 w-16 flex-shrink-0">Status:</span>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(school.subscriptionStatus)}`}>
+                  {school.subscriptionStatus}
+                </span>
+              </div>
+
+              {school.subscriptionExpiresAt && (
+                <div className="flex items-center">
+                  <span className="text-xs text-gray-500 w-16 flex-shrink-0">Expires:</span>
+                  <span className="text-xs text-gray-900">
+                    {new Date(school.subscriptionExpiresAt).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {schools.length === 0 && !loading && (
+        <div className="text-center py-12">
+          <BuildingOfficeIcon className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No schools found</h3>
+          <p className="mt-1 text-sm text-gray-500">Get started by creating a new school.</p>
+        </div>
+      )}
 
       {/* Pagination */}
       {pagination.pages > 1 && (
@@ -359,11 +433,10 @@ function Schools() {
                     <button
                       key={page}
                       onClick={() => setPagination(prev => ({ ...prev, page }))}
-                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                        page === pagination.page
-                          ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
-                          : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                      }`}
+                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${page === pagination.page
+                        ? 'z-10 bg-primary-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600'
+                        : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+                        }`}
                     >
                       {page}
                     </button>
@@ -469,10 +542,10 @@ function CreateSchoolModal({ onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Create New School</h2>
-        
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Create New School</h2>
+
         {errors.general && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {errors.general}
@@ -480,7 +553,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 School Name *
@@ -489,9 +562,8 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
                 placeholder="example public school"
               />
@@ -506,9 +578,8 @@ function CreateSchoolModal({ onClose, onSubmit }) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
                 placeholder="example@gmail.com"
               />
@@ -570,7 +641,7 @@ function CreateSchoolModal({ onClose, onSubmit }) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Subscription Plan
@@ -621,18 +692,18 @@ function CreateSchoolModal({ onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Create School'}

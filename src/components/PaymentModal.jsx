@@ -82,23 +82,23 @@ const PaymentModal = ({ studentFee, onClose, onSave }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+      <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
         <div className="mt-3">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+          <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-4">
             Record Payment
           </h3>
           
           {/* Student and Fee Info */}
           <div className="bg-gray-50 p-3 rounded-lg mb-4">
-            <div className="text-sm">
+            <div className="text-xs sm:text-sm">
               <div className="font-medium text-gray-900">
                 {studentFee.student.firstName} {studentFee.student.lastName}
               </div>
               <div className="text-gray-600">
                 Roll: {studentFee.student.rollNumber}
               </div>
-              <div className="text-gray-600">
+              <div className="text-gray-600 truncate">
                 Fee: {studentFee.fee.title}
               </div>
               <div className="mt-2 space-y-1">
@@ -116,7 +116,7 @@ const PaymentModal = ({ studentFee, onClose, onSave }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Payment Amount (₹) *
               </label>
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <input
                   type="number"
                   name="paidAmount"
@@ -133,9 +133,9 @@ const PaymentModal = ({ studentFee, onClose, onSave }) => {
                 <button
                   type="button"
                   onClick={handleFullPayment}
-                  className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+                  className="px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 w-full sm:w-auto"
                 >
-                  Full
+                  Pay Full Amount
                 </button>
               </div>
               {errors.paidAmount && (
@@ -200,18 +200,18 @@ const PaymentModal = ({ studentFee, onClose, onSave }) => {
               <div className="text-red-500 text-sm">{errors.submit}</div>
             )}
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 w-full sm:w-auto"
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 disabled:opacity-50 w-full sm:w-auto"
                 disabled={loading}
               >
                 {loading ? 'Recording...' : 'Record Payment'}

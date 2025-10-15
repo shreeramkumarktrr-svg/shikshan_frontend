@@ -102,34 +102,34 @@ function AttendanceReports() {
     return (
       <div className="space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Staff Overview */}
           <div className="card">
             <div className="card-body">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <AcademicCapIcon className="h-6 w-6 mr-2 text-blue-500" />
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center">
+                <AcademicCapIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-blue-500" />
                 Staff Attendance Overview
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Total Days:</span>
-                  <span className="font-medium">{staffStats.total || 0}</span>
+                  <span className="text-sm sm:text-base text-gray-600">Total Days:</span>
+                  <span className="text-sm sm:text-base font-medium">{staffStats.total || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Present Days:</span>
-                  <span className="font-medium text-green-600">{staffStats.present || 0}</span>
+                  <span className="text-sm sm:text-base text-gray-600">Present Days:</span>
+                  <span className="text-sm sm:text-base font-medium text-green-600">{staffStats.present || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Absent Days:</span>
-                  <span className="font-medium text-red-600">{staffStats.absent || 0}</span>
+                  <span className="text-sm sm:text-base text-gray-600">Absent Days:</span>
+                  <span className="text-sm sm:text-base font-medium text-red-600">{staffStats.absent || 0}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Attendance Rate:</span>
-                  <span className="font-medium text-blue-600">{staffStats.percentage || 0}%</span>
+                  <span className="text-sm sm:text-base text-gray-600">Attendance Rate:</span>
+                  <span className="text-sm sm:text-base font-medium text-blue-600">{staffStats.percentage || 0}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Late Arrivals:</span>
-                  <span className="font-medium text-yellow-600">{staffStats.late || 0}</span>
+                  <span className="text-sm sm:text-base text-gray-600">Late Arrivals:</span>
+                  <span className="text-sm sm:text-base font-medium text-yellow-600">{staffStats.late || 0}</span>
                 </div>
               </div>
             </div>
@@ -138,30 +138,30 @@ function AttendanceReports() {
           {/* Quick Stats */}
           <div className="card">
             <div className="card-body">
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <ChartBarIcon className="h-6 w-6 mr-2 text-purple-500" />
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4 flex items-center">
+                <ChartBarIcon className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-purple-500" />
                 Quick Statistics
               </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{classes.length}</div>
-                  <div className="text-sm text-blue-800">Total Classes</div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="text-center p-2 sm:p-3 bg-blue-50 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-blue-600">{classes.length}</div>
+                  <div className="text-xs sm:text-sm text-blue-800">Total Classes</div>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{staff.length}</div>
-                  <div className="text-sm text-green-800">Total Staff</div>
+                <div className="text-center p-2 sm:p-3 bg-green-50 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-green-600">{staff.length}</div>
+                  <div className="text-xs sm:text-sm text-green-800">Total Staff</div>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">
+                <div className="text-center p-2 sm:p-3 bg-purple-50 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-purple-600">
                     {Math.round((staffStats.percentage || 0))}%
                   </div>
-                  <div className="text-sm text-purple-800">Staff Attendance</div>
+                  <div className="text-xs sm:text-sm text-purple-800">Staff Attendance</div>
                 </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">
+                <div className="text-center p-2 sm:p-3 bg-orange-50 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-orange-600">
                     {Math.round((studentStats.percentage || 0))}%
                   </div>
-                  <div className="text-sm text-orange-800">Student Attendance</div>
+                  <div className="text-xs sm:text-sm text-orange-800">Student Attendance</div>
                 </div>
               </div>
             </div>
@@ -204,56 +204,92 @@ function AttendanceReports() {
         {/* Student Reports Table */}
         <div className="card">
           <div className="card-body p-0">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Student
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Days
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Present
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Absent
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Late
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Attendance %
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {reportData.length > 0 ? reportData.map((record) => (
-                    <tr key={record.id || record.studentId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
+            {reportData.length === 0 ? (
+              <div className="px-6 py-12 text-center text-gray-500">
+                No attendance records found for the selected class and date range.
+              </div>
+            ) : (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Student
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total Days
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Present
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Absent
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Late
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Attendance %
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {reportData.map((record) => (
+                        <tr key={record.id || record.studentId} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {record.student?.firstName} {record.student?.lastName}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                Date: {new Date(record.date).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            1
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">
+                            {record.status === 'present' ? 1 : 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                            {record.status === 'absent' ? 1 : 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600">
+                            {record.status === 'late' ? 1 : 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              record.status === 'present' ? 'bg-green-100 text-green-800' :
+                              record.status === 'absent' ? 'bg-red-100 text-red-800' :
+                              record.status === 'late' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {record.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="sm:hidden space-y-4 p-4">
+                  {reportData.map((record) => (
+                    <div key={record.id || record.studentId} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
                             {record.student?.firstName} {record.student?.lastName}
-                          </div>
-                          <div className="text-sm text-gray-500">
+                          </h3>
+                          <p className="text-xs text-gray-500">
                             Date: {new Date(record.date).toLocaleDateString()}
-                          </div>
+                          </p>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        1
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">
-                        {record.status === 'present' ? 1 : 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-                        {record.status === 'absent' ? 1 : 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-yellow-600">
-                        {record.status === 'late' ? 1 : 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           record.status === 'present' ? 'bg-green-100 text-green-800' :
                           record.status === 'absent' ? 'bg-red-100 text-red-800' :
@@ -262,18 +298,38 @@ function AttendanceReports() {
                         }`}>
                           {record.status}
                         </span>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
-                        No attendance records found for the selected class and date range.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-4 gap-2 text-center">
+                        <div className="p-2 bg-gray-50 rounded">
+                          <div className="text-sm font-medium text-gray-900">1</div>
+                          <div className="text-xs text-gray-500">Total</div>
+                        </div>
+                        <div className="p-2 bg-green-50 rounded">
+                          <div className="text-sm font-medium text-green-600">
+                            {record.status === 'present' ? 1 : 0}
+                          </div>
+                          <div className="text-xs text-green-700">Present</div>
+                        </div>
+                        <div className="p-2 bg-red-50 rounded">
+                          <div className="text-sm font-medium text-red-600">
+                            {record.status === 'absent' ? 1 : 0}
+                          </div>
+                          <div className="text-xs text-red-700">Absent</div>
+                        </div>
+                        <div className="p-2 bg-yellow-50 rounded">
+                          <div className="text-sm font-medium text-yellow-600">
+                            {record.status === 'late' ? 1 : 0}
+                          </div>
+                          <div className="text-xs text-yellow-700">Late</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -321,33 +377,33 @@ function AttendanceReports() {
     return (
       <div className="space-y-6">
         {/* Staff Stats Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="card">
             <div className="card-body text-center">
-              <CalendarDaysIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.totalDays || 0}</div>
-              <div className="text-sm text-gray-500">Total Days</div>
+              <CalendarDaysIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalDays || 0}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Total Days</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <UserGroupIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.presentDays || 0}</div>
-              <div className="text-sm text-gray-500">Present Days</div>
+              <UserGroupIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{stats.presentDays || 0}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Present Days</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <ChartBarIcon className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.attendancePercentage || 0}%</div>
-              <div className="text-sm text-gray-500">Attendance Rate</div>
+              <ChartBarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{stats.attendancePercentage || 0}%</div>
+              <div className="text-xs sm:text-sm text-gray-500">Attendance Rate</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <CalendarDaysIcon className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.totalWorkingHours || 0}h</div>
-              <div className="text-sm text-gray-500">Working Hours</div>
+              <CalendarDaysIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalWorkingHours || 0}h</div>
+              <div className="text-xs sm:text-sm text-gray-500">Working Hours</div>
             </div>
           </div>
         </div>
@@ -355,23 +411,23 @@ function AttendanceReports() {
         {/* Detailed Breakdown */}
         <div className="card">
           <div className="card-body">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Attendance Breakdown</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-xl font-bold text-green-600">{stats.present || 0}</div>
-                <div className="text-sm text-green-800">Present</div>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Attendance Breakdown</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="text-center p-2 sm:p-3 bg-green-50 rounded-lg">
+                <div className="text-lg sm:text-xl font-bold text-green-600">{stats.present || 0}</div>
+                <div className="text-xs sm:text-sm text-green-800">Present</div>
               </div>
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <div className="text-xl font-bold text-red-600">{stats.absent || 0}</div>
-                <div className="text-sm text-red-800">Absent</div>
+              <div className="text-center p-2 sm:p-3 bg-red-50 rounded-lg">
+                <div className="text-lg sm:text-xl font-bold text-red-600">{stats.absent || 0}</div>
+                <div className="text-xs sm:text-sm text-red-800">Absent</div>
               </div>
-              <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                <div className="text-xl font-bold text-yellow-600">{stats.late || 0}</div>
-                <div className="text-sm text-yellow-800">Late</div>
+              <div className="text-center p-2 sm:p-3 bg-yellow-50 rounded-lg">
+                <div className="text-lg sm:text-xl font-bold text-yellow-600">{stats.late || 0}</div>
+                <div className="text-xs sm:text-sm text-yellow-800">Late</div>
               </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-xl font-bold text-blue-600">{stats.sick_leave || 0}</div>
-                <div className="text-sm text-blue-800">Sick Leave</div>
+              <div className="text-center p-2 sm:p-3 bg-blue-50 rounded-lg">
+                <div className="text-lg sm:text-xl font-bold text-blue-600">{stats.sick_leave || 0}</div>
+                <div className="text-xs sm:text-sm text-blue-800">Sick Leave</div>
               </div>
             </div>
           </div>
@@ -381,14 +437,14 @@ function AttendanceReports() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900">Attendance Reports & Analytics</h2>
-          <p className="text-gray-600">View comprehensive attendance reports and statistics</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Attendance Reports & Analytics</h2>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">View comprehensive attendance reports and statistics</p>
         </div>
-        <button className="btn-outline">
+        <button className="btn-outline w-full sm:w-auto">
           <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
           Export Report
         </button>
@@ -396,7 +452,8 @@ function AttendanceReports() {
 
       {/* Report Type Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
+        {/* Desktop Tab Navigation */}
+        <nav className="hidden sm:flex -mb-px space-x-8">
           {reportTypes.map((type) => {
             const Icon = type.icon
             return (
@@ -421,12 +478,27 @@ function AttendanceReports() {
             )
           })}
         </nav>
+
+        {/* Mobile Tab Navigation */}
+        <div className="sm:hidden">
+          <select
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm"
+          >
+            {reportTypes.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Filters */}
       <div className="card">
         <div className="card-body">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 From Date
@@ -435,7 +507,7 @@ function AttendanceReports() {
                 type="date"
                 value={dateRange.startDate}
                 onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-                className="input"
+                className="input w-full"
               />
             </div>
             <div>
@@ -446,18 +518,18 @@ function AttendanceReports() {
                 type="date"
                 value={dateRange.endDate}
                 onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
-                className="input"
+                className="input w-full"
               />
             </div>
             {reportType === 'students' && (
-              <div>
+              <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Class
                 </label>
                 <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  className="input"
+                  className="input w-full"
                 >
                   <option value="">Select Class</option>
                   {classes.map((cls) => (
@@ -469,14 +541,14 @@ function AttendanceReports() {
               </div>
             )}
             {reportType === 'staff' && (
-              <div>
+              <div className="sm:col-span-2 lg:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Staff Member (Optional)
                 </label>
                 <select
                   value={selectedStaff}
                   onChange={(e) => setSelectedStaff(e.target.value)}
-                  className="input"
+                  className="input w-full"
                 >
                   <option value="">All Staff</option>
                   {staff.map((member) => (

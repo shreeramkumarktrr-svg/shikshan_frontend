@@ -152,7 +152,7 @@ function Teachers() {
   const currentSchoolId = getCurrentSchoolId()
 
   // 🔹 Loading & Errors
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner centered size="lg" />
 
   if (user?.role === 'super_admin' && !currentSchoolId) {
     return (
@@ -192,9 +192,69 @@ function Teachers() {
   const teachersCount = allTeachers.length
   const activeTeachersCount = allTeachers.filter(t => t.isActive).length
 
+  // Mobile Teacher Card Component
+  const TeacherCard = ({ teacher }) => (
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-gray-900 truncate">
+            {teacher.firstName} {teacher.lastName}
+          </div>
+          <div className="text-sm text-gray-500 truncate">{teacher.email}</div>
+          <div className="text-sm text-gray-500">{teacher.phone || 'No phone'}</div>
+        </div>
+        <div className="flex space-x-2 ml-2">
+          <button 
+            onClick={() => handleViewTeacher(teacher)} 
+            className="text-gray-500 hover:text-blue-600 p-1"
+            title="View Details"
+          >
+            <EyeIcon className="h-4 w-4" />
+          </button>
+          {canManageTeachers && (
+            <>
+              <button 
+                onClick={() => handleEditTeacher(teacher)} 
+                className="text-gray-500 hover:text-green-600 p-1"
+                title="Edit"
+              >
+                <PencilIcon className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => handleChangePassword(teacher)} 
+                className="text-gray-500 hover:text-orange-600 p-1"
+                title="Change Password"
+              >
+                <KeyIcon className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={() => handleDeleteTeacher(teacher.id)} 
+                className="text-gray-500 hover:text-red-600 p-1"
+                title="Deactivate"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <span className="text-xs text-gray-500 w-12 flex-shrink-0">Status:</span>
+          {teacher.isActive ? (
+            <span className="px-2 py-1 text-green-700 bg-green-100 rounded-full text-xs">Active</span>
+          ) : (
+            <span className="px-2 py-1 text-red-700 bg-red-100 rounded-full text-xs">Inactive</span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
   // 🔹 UI Render
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
       {user?.role === 'super_admin' && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
           <h4 className="text-sm font-medium text-yellow-800">Debug Info</h4>
@@ -227,19 +287,19 @@ function Teachers() {
       />
 
       {/* 🔹 Stats Section */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow flex items-center gap-3">
-          <UserCircleIcon className="h-6 w-6 text-blue-600" />
-          <div>
-            <p className="text-sm text-gray-500">Total Teachers</p>
-            <p className="text-lg font-semibold">{teachersCount}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow flex items-center gap-2 sm:gap-3">
+          <UserCircleIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm text-gray-500">Total Teachers</p>
+            <p className="text-base sm:text-lg font-semibold">{teachersCount}</p>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow flex items-center gap-3">
-          <AcademicCapIcon className="h-6 w-6 text-green-600" />
-          <div>
-            <p className="text-sm text-gray-500">Active</p>
-            <p className="text-lg font-semibold">
+        <div className="bg-white p-3 sm:p-4 rounded-lg shadow flex items-center gap-2 sm:gap-3">
+          <AcademicCapIcon className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 flex-shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm text-gray-500">Active</p>
+            <p className="text-base sm:text-lg font-semibold">
               {activeTeachersCount}
             </p>
           </div>
@@ -249,9 +309,9 @@ function Teachers() {
       {/* 🔹 Search and Filters */}
       <div className="bg-white rounded-lg shadow">
         {/* Search Bar */}
-        <div className="p-4 flex items-center justify-between gap-4">
+        <div className="p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           <div className="flex items-center gap-2 flex-1">
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
             <input
               type="text"
               placeholder="Search teacher..."
@@ -262,12 +322,13 @@ function Teachers() {
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-4 py-2 rounded flex items-center gap-2 transition-colors relative ${showFilters
+            className={`px-4 py-2 rounded flex items-center justify-center gap-2 transition-colors relative w-full sm:w-auto ${showFilters
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
-            <FunnelIcon className="h-5 w-5" /> Filter
+            <FunnelIcon className="h-5 w-5" /> 
+            <span>Filter</span>
             {(filters.active || filters.hasClass) && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                 {[filters.active, filters.hasClass].filter(Boolean).length}
@@ -279,7 +340,7 @@ function Teachers() {
         {/* Filter Dropdowns */}
         {showFilters && (
           <div className="px-4 pb-4 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
               {/* Status Filter */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -325,8 +386,8 @@ function Teachers() {
           </div>
         )}
       </div>
-      {/* 🔹 Teachers Table */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
+      {/* 🔹 Teachers Table - Desktop */}
+      <div className="hidden lg:block overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -372,28 +433,59 @@ function Teachers() {
             ))}
           </tbody>
         </table>
+        
+        {teachers.length === 0 && (
+          <div className="text-center py-12">
+            <UserCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No teachers found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {canManageTeachers ? 'Get started by adding a new teacher.' : 'No teachers match your search criteria.'}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* 🔹 Teachers Cards - Mobile & Tablet */}
+      <div className="lg:hidden space-y-4">
+        {teachers.map((teacher) => (
+          <TeacherCard key={teacher.id} teacher={teacher} />
+        ))}
+        
+        {teachers.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <UserCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No teachers found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {canManageTeachers ? 'Get started by adding a new teacher.' : 'No teachers match your search criteria.'}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* 🔹 Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span className="text-sm text-gray-600">
-          Page {pagination.currentPage || page} of {pagination.totalPages || 1}
-        </span>
-        <button
-          disabled={page >= (pagination.totalPages || 1)}
-          onClick={() => setPage(page + 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {pagination.totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-lg shadow">
+          <div className="flex items-center gap-2 order-2 sm:order-1">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              className="px-3 sm:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
+            >
+              Prev
+            </button>
+            <button
+              disabled={page >= (pagination.totalPages || 1)}
+              onClick={() => setPage(page + 1)}
+              className="px-3 sm:px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+          <span className="text-sm text-gray-600 order-1 sm:order-2">
+            Page {pagination.currentPage || page} of {pagination.totalPages || 1}
+          </span>
+        </div>
+      )}
 
       {/* 🔹 Modals */}
       {isCreateModalOpen && (

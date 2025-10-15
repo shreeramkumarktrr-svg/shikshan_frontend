@@ -336,6 +336,8 @@ export const getSchoolFeatures = async (schoolId = null) => {
     const cacheBuster = Date.now();
     const response = await api.get(`/schools/${targetSchoolId}/features?_t=${cacheBuster}`);
     
+    console.log('🏫 School features API response:', response.data);
+    
     // Update cache
     featuresCache = response.data.features;
     cacheTimestamp = Date.now();
@@ -343,6 +345,45 @@ export const getSchoolFeatures = async (schoolId = null) => {
     return featuresCache;
   } catch (error) {
     console.error('Error fetching school features:', error);
+    
+    // Fallback: If API fails, provide basic features for non-super admin users
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.role !== 'super_admin' && user.schoolId) {
+      console.warn('⚠️ Using fallback features due to API error');
+      return {
+        schoolId: user.schoolId,
+        subscriptionStatus: 'active', // Assume active to prevent blocking
+        subscription: {
+          name: 'Basic Plan (Fallback)',
+          planType: 'basic',
+          price: 0,
+          currency: 'INR',
+          billingCycle: 'monthly'
+        },
+        features: {
+          // Provide basic features as fallback
+          available: ['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'],
+          unavailable: [],
+          all: {
+            dashboard: true,
+            teachers: true,
+            students: true,
+            classes: true,
+            attendance: true,
+            homework: true,
+            events: true,
+            complaints: true,
+            fees: true,
+            reports: true
+          }
+        },
+        limits: {
+          maxStudents: 1000,
+          maxTeachers: 100
+        }
+      };
+    }
+    
     throw error;
   }
 };
@@ -367,7 +408,17 @@ export const hasFeature = async (featureName, schoolId = null, action = 'view') 
     const features = await getSchoolFeatures(schoolId);
     const hasSubscriptionAccess = features.features.available.includes(featureName);
     
+    // Debug logging
+    console.log(`🔍 Feature check for "${featureName}":`, {
+      userRole: user.role,
+      schoolId: user.schoolId,
+      hasSubscriptionAccess,
+      availableFeatures: features.features.available,
+      subscriptionStatus: features.subscriptionStatus
+    });
+    
     if (!hasSubscriptionAccess) {
+      console.log(`❌ Feature "${featureName}" not available in subscription`);
       return false;
     }
     
@@ -379,6 +430,18 @@ export const hasFeature = async (featureName, schoolId = null, action = 'view') 
       }
       
       return hasTeacherPermission(featureName, action);
+    }
+    
+    // Apply role-based permissions for principals (they have access to most features)
+    if (user.role === 'principal') {
+      // Principals have access to all features that are available in subscription
+      return true;
+    }
+    
+    // Apply role-based permissions for school_admin (they have access to all features)
+    if (user.role === 'school_admin') {
+      // School admins have access to all features that are available in subscription
+      return true;
     }
     
     // Apply role-based permissions for students
@@ -455,6 +518,9 @@ export const clearFeaturesCache = () => {
   cacheTimestamp = null;
   console.log('🗑️ Feature cache cleared');
 };
+
+// Clear cache on page load to ensure fresh data
+clearFeaturesCache();
 
 /**
  * Force refresh features from server (bypasses cache)

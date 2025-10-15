@@ -141,7 +141,7 @@ const Homework = () => {
   };
 
   // Check feature access first
-  if (featureLoading) return <LoadingSpinner />;
+  if (featureLoading) return <LoadingSpinner centered size="lg" />;
   
   if (!hasAccess) {
     return (
@@ -152,20 +152,20 @@ const Homework = () => {
     );
   }
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner centered size="lg" />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Homework</h1>
-          <p className="text-gray-600">Manage assignments and track submissions</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Homework</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage assignments and track submissions</p>
         </div>
         {canCreateHomework && (
           <button
             onClick={handleCreateHomework}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2"
           >
             <PlusIcon className="h-5 w-5" />
             Create Homework
@@ -175,40 +175,40 @@ const Homework = () => {
 
       {/* Stats Cards */}
       {canCreateHomework && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <DocumentTextIcon className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Homework</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalHomework || 0}</p>
+              <DocumentTextIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <div className="ml-2 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Homework</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalHomework || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <CheckCircleIcon className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Submissions</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalSubmissions || 0}</p>
+              <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+              <div className="ml-2 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Submissions</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.totalSubmissions || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <ClockIcon className="h-8 w-8 text-orange-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Grading</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.pendingGrading || 0}</p>
+              <ClockIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600" />
+              <div className="ml-2 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Pending Grading</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.pendingGrading || 0}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white p-3 sm:p-6 rounded-lg shadow">
             <div className="flex items-center">
-              <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Overdue</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.overdueHomework || 0}</p>
+              <ExclamationTriangleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+              <div className="ml-2 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Overdue</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">{stats.overdueHomework || 0}</p>
               </div>
             </div>
           </div>
@@ -216,12 +216,12 @@ const Homework = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white p-3 sm:p-4 rounded-lg shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <select
             value={filters.type}
             onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base w-full"
           >
             <option value="">All Types</option>
             <option value="assignment">Assignment</option>
@@ -233,7 +233,7 @@ const Homework = () => {
           <select
             value={filters.priority}
             onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base w-full"
           >
             <option value="">All Priorities</option>
             <option value="low">Low</option>
@@ -246,12 +246,12 @@ const Homework = () => {
             placeholder="Filter by subject"
             value={filters.subject}
             onChange={(e) => setFilters({ ...filters, subject: e.target.value })}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base w-full"
           />
           <select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base w-full"
           >
             <option value="">All Status</option>
             <option value="pending">Pending</option>
@@ -279,99 +279,174 @@ const Homework = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Title & Subject
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Class
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Due Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Priority
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {homework.map((hw) => (
-                  <tr key={hw.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{hw.title}</div>
-                        <div className="text-sm text-gray-500">{hw.subject}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {hw.class?.name} ({hw.class?.grade}-{hw.class?.section})
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-900">
-                        <CalendarIcon className="h-4 w-4 mr-1" />
-                        {new Date(hw.dueDate).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden sm:block overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Title & Subject
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Class
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Priority
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {homework.map((hw) => (
+                    <tr key={hw.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{hw.title}</div>
+                          <div className="text-sm text-gray-500">{hw.subject}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {hw.class?.name} ({hw.class?.grade}-{hw.class?.section})
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center text-sm text-gray-900">
+                          <CalendarIcon className="h-4 w-4 mr-1" />
+                          {new Date(hw.dueDate).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(hw.priority)}`}>
+                          {hw.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(hw)}`}>
+                          {getStatusText(hw)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleViewHomework(hw)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            View
+                          </button>
+                          {user.role === 'student' && !hw.submissions?.length && (
+                            <button
+                              onClick={() => handleSubmitHomework(hw)}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              Submit
+                            </button>
+                          )}
+                          {canCreateHomework && hw.teacherId === user.id && (
+                            <>
+                              <button
+                                onClick={() => handleEditHomework(hw)}
+                                className="text-indigo-600 hover:text-indigo-900"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteHomework(hw.id)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="sm:hidden space-y-4 p-4">
+              {homework.map((hw) => (
+                <div key={hw.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 truncate">{hw.title}</h3>
+                      <p className="text-xs text-gray-500 mt-1">{hw.subject}</p>
+                    </div>
+                    <div className="flex flex-col items-end space-y-1 ml-2">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(hw.priority)}`}>
                         {hw.priority}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(hw)}`}>
                         {getStatusText(hw)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-2 text-sm mb-4">
+                    <div>
+                      <span className="text-gray-500">Class: </span>
+                      <span className="text-gray-900">
+                        {hw.class?.name} ({hw.class?.grade}-{hw.class?.section})
+                      </span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-500">Due Date: </span>
+                      <CalendarIcon className="h-4 w-4 ml-1 mr-1 text-gray-400" />
+                      <span className="text-gray-900">{new Date(hw.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleViewHomework(hw)}
+                      className="btn-outline text-xs px-3 py-1 flex items-center"
+                    >
+                      View
+                    </button>
+                    {user.role === 'student' && !hw.submissions?.length && (
+                      <button
+                        onClick={() => handleSubmitHomework(hw)}
+                        className="bg-green-600 text-white text-xs px-3 py-1 rounded hover:bg-green-700"
+                      >
+                        Submit
+                      </button>
+                    )}
+                    {canCreateHomework && hw.teacherId === user.id && (
+                      <>
                         <button
-                          onClick={() => handleViewHomework(hw)}
-                          className="text-blue-600 hover:text-blue-900"
+                          onClick={() => handleEditHomework(hw)}
+                          className="bg-indigo-600 text-white text-xs px-3 py-1 rounded hover:bg-indigo-700"
                         >
-                          View
+                          Edit
                         </button>
-                        {user.role === 'student' && !hw.submissions?.length && (
-                          <button
-                            onClick={() => handleSubmitHomework(hw)}
-                            className="text-green-600 hover:text-green-900"
-                          >
-                            Submit
-                          </button>
-                        )}
-                        {canCreateHomework && hw.teacherId === user.id && (
-                          <>
-                            <button
-                              onClick={() => handleEditHomework(hw)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteHomework(hw.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <button
+                          onClick={() => handleDeleteHomework(hw.id)}
+                          className="bg-red-600 text-white text-xs px-3 py-1 rounded hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

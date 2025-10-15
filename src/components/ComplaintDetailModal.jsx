@@ -142,44 +142,44 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div className="bg-white rounded-lg shadow-xl p-8">
-          <LoadingSpinner />
+          <LoadingSpinner size="lg" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 border-b space-y-2 sm:space-y-0">
           <div className="flex items-center space-x-3">
             {getStatusIcon(complaint.status)}
-            <h2 className="text-xl font-semibold text-gray-900">Complaint Details</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Complaint Details</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 p-1 self-end sm:self-auto"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Complaint Header */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">{complaint.title}</h3>
-                <p className="text-gray-700">{complaint.description}</p>
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-4 space-y-2 sm:space-y-0">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2 break-words">{complaint.title}</h3>
+                <p className="text-sm sm:text-base text-gray-700 break-words">{complaint.description}</p>
               </div>
-              <div className="ml-4 text-right">
+              <div className="ml-0 sm:ml-4 flex-shrink-0">
                 <span className={`inline-flex px-2 py-1 text-xs rounded-full capitalize ${getPriorityColor(complaint.priority)}`}>
                   {complaint.priority}
                 </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
               <div>
                 <p className="text-gray-500">Category</p>
                 <p className="font-medium capitalize">{complaint.category}</p>
@@ -214,7 +214,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
             {complaint.resolution && (
               <div className="mt-4 pt-4 border-t">
                 <p className="text-gray-500 text-sm">Resolution</p>
-                <p className="text-gray-700">{complaint.resolution}</p>
+                <p className="text-sm sm:text-base text-gray-700 break-words">{complaint.resolution}</p>
                 {complaint.resolvedAt && (
                   <p className="text-xs text-gray-500 mt-1">
                     Resolved on {new Date(complaint.resolvedAt).toLocaleDateString()}
@@ -226,16 +226,16 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
 
           {/* Status Update Section */}
           {canUpdateStatus && (
-            <div className="border-t pt-6">
+            <div className="border-t pt-4 sm:pt-6">
               {!showStatusUpdate ? (
                 <button
                   onClick={() => setShowStatusUpdate(true)}
-                  className="btn-outline"
+                  className="btn-outline w-full sm:w-auto"
                 >
                   Update Status
                 </button>
               ) : (
-                <div className="bg-blue-50 p-4 rounded-lg space-y-4">
+                <div className="bg-blue-50 p-3 sm:p-4 rounded-lg space-y-4">
                   <h4 className="font-medium text-gray-900">Update Status</h4>
                   
                   <div>
@@ -272,11 +272,11 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                     </div>
                   )}
 
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <button
                       onClick={handleStatusUpdate}
                       disabled={isUpdating}
-                      className="btn-primary"
+                      className="btn-primary w-full sm:w-auto"
                     >
                       {isUpdating ? 'Updating...' : 'Update Status'}
                     </button>
@@ -286,7 +286,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                         setNewStatus('')
                         setResolution('')
                       }}
-                      className="btn-outline"
+                      className="btn-outline w-full sm:w-auto"
                     >
                       Cancel
                     </button>
@@ -297,19 +297,19 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
           )}
 
           {/* Updates Timeline */}
-          <div className="border-t pt-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Updates & Comments</h4>
+          <div className="border-t pt-4 sm:pt-6">
+            <h4 className="text-base sm:text-lg font-medium text-gray-900 mb-4">Updates & Comments</h4>
             
             {complaint.updates && complaint.updates.length > 0 ? (
               <div className="space-y-4">
                 {complaint.updates.map((update) => (
                   <div key={update.id} className="flex space-x-3">
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 mt-1">
                       {getUpdateTypeIcon(update.updateType)}
                     </div>
-                    <div className="flex-1 bg-gray-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
+                    <div className="flex-1 bg-gray-50 p-3 rounded-lg min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 space-y-1 sm:space-y-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-gray-900">
                             {update.updater?.firstName} {update.updater?.lastName}
                           </p>
@@ -317,7 +317,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                             {update.updater?.role?.replace('_', ' ')}
                           </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex-shrink-0">
                           <p className="text-xs text-gray-500">
                             {new Date(update.createdAt).toLocaleDateString()} at{' '}
                             {new Date(update.createdAt).toLocaleTimeString()}
@@ -331,7 +331,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                       </div>
                       
                       {update.message && (
-                        <p className="text-sm text-gray-700">{update.message}</p>
+                        <p className="text-sm text-gray-700 break-words">{update.message}</p>
                       )}
                     </div>
                   </div>
@@ -344,7 +344,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
 
           {/* Add Comment Section */}
           {canAddComments && (
-            <div className="border-t pt-6">
+            <div className="border-t pt-4 sm:pt-6">
               <h4 className="font-medium text-gray-900 mb-3">Add Update</h4>
               
               <div className="space-y-3">
@@ -359,7 +359,7 @@ function ComplaintDetailModal({ complaint: initialComplaint, onClose, onUpdate }
                 <button
                   onClick={handleAddUpdate}
                   disabled={isUpdating || !newUpdate.trim()}
-                  className="btn-primary flex items-center space-x-2"
+                  className="btn-primary flex items-center space-x-2 w-full sm:w-auto"
                 >
                   <PaperAirplaneIcon className="h-4 w-4" />
                   <span>{isUpdating ? 'Adding...' : 'Add Update'}</span>

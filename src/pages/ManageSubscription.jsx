@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline'
 import api from '../utils/api'
 import PageHeader from '../components/PageHeader'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 function ManageSubscription() {
   const { user } = useAuth()
@@ -58,11 +59,7 @@ function ManageSubscription() {
   }
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-      </div>
-    )
+    return <LoadingSpinner centered size="lg" />
   }
 
   if (error) {
@@ -82,55 +79,58 @@ function ManageSubscription() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <PageHeader
-        title="Manage Subscription"
-        subtitle="View your current subscription plan and features"
-      />
+    <div className="p-2 sm:p-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Manage Subscription</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">
+          View your current subscription plan and features
+        </p>
+      </div>
 
       {subscription ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Current Plan Overview */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-primary-100 rounded-lg">
-                  <StarIcon className="h-6 w-6 text-primary-600" />
+                <div className="p-2 bg-primary-100 rounded-lg flex-shrink-0">
+                  <StarIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {subscription.planName}
                   </h2>
                   <p className="text-sm text-gray-500">Current Plan</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="flex justify-end sm:justify-start">
                 <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(subscription.status)}`}>
                   {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
                 </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-3">
-                <CreditCardIcon className="h-5 w-5 text-gray-400" />
-                <div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="flex items-center space-x-3 p-3 sm:p-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                <CreditCardIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-500">Monthly Cost</p>
                   <p className="font-semibold text-gray-900">₹{subscription.price}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <CalendarIcon className="h-5 w-5 text-gray-400" />
-                <div>
+              <div className="flex items-center space-x-3 p-3 sm:p-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                <CalendarIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-500">Valid Until</p>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">
                     {formatDate(subscription.endDate)}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <BuildingOfficeIcon className="h-5 w-5 text-gray-400" />
-                <div>
+              <div className="flex items-center space-x-3 p-3 sm:p-0 bg-gray-50 sm:bg-transparent rounded-lg sm:rounded-none">
+                <BuildingOfficeIcon className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-500">Max Students</p>
                   <p className="font-semibold text-gray-900">{subscription.maxStudents}</p>
                 </div>
@@ -139,19 +139,19 @@ function ManageSubscription() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Included Features */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <CheckIcon className="h-5 w-5 text-green-500 mr-2" />
-                Included Features
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <CheckIcon className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <span>Included Features</span>
               </h3>
               <div className="space-y-3">
                 {subscription.features?.included?.length > 0 ? (
                   subscription.features.included.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <CheckIcon className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{feature}</span>
+                    <div key={index} className="flex items-start space-x-3">
+                      <CheckIcon className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-700 break-words">{feature}</span>
                     </div>
                   ))
                 ) : (
@@ -163,17 +163,17 @@ function ManageSubscription() {
             </div>
 
             {/* Missing Features */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <XMarkIcon className="h-5 w-5 text-red-500 mr-2" />
-                Upgrade for More Features
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <XMarkIcon className="h-5 w-5 text-red-500 mr-2 flex-shrink-0" />
+                <span>Upgrade for More Features</span>
               </h3>
               <div className="space-y-3">
                 {subscription.features?.missing?.length > 0 ? (
                   subscription.features.missing.map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <XMarkIcon className="h-4 w-4 text-red-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-500">{feature}</span>
+                    <div key={index} className="flex items-start space-x-3">
+                      <XMarkIcon className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-500 break-words">{feature}</span>
                     </div>
                   ))
                 ) : (
@@ -186,19 +186,19 @@ function ManageSubscription() {
           </div>
 
           {/* Upgrade Section */}
-          <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-primary-900 mb-2">
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200 p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-primary-900 mb-2">
                   Ready to Upgrade?
                 </h3>
-                <p className="text-primary-700">
+                <p className="text-sm sm:text-base text-primary-700">
                   Unlock more features and increase your student capacity with our premium plans.
                 </p>
               </div>
               <button
                 disabled
-                className="px-6 py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed"
+                className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-300 text-gray-500 rounded-lg font-medium cursor-not-allowed text-sm sm:text-base w-full sm:w-auto flex-shrink-0"
               >
                 Upgrade Plan (Coming Soon)
               </button>

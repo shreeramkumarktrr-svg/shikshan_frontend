@@ -4,7 +4,6 @@ import LoadingSpinner from './LoadingSpinner'
 
 function StaffAttendanceModal({ date, staff = [], onSave, onClose, isLoading }) {
   const [attendanceRecords, setAttendanceRecords] = useState([])
-  const [selectAll, setSelectAll] = useState('present')
 
   useEffect(() => {
     // Initialize attendance records for all staff
@@ -30,7 +29,6 @@ function StaffAttendanceModal({ date, staff = [], onSave, onClose, isLoading }) 
   }
 
   const handleSelectAllChange = (status) => {
-    setSelectAll(status)
     setAttendanceRecords(prev => 
       prev.map(record => ({ ...record, status }))
     )

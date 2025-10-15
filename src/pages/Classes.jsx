@@ -1,25 +1,25 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useAuth } from '../contexts/AuthContext'
-import { classesAPI, usersAPI } from '../utils/api'
-import toast from 'react-hot-toast'
-import {
-  PlusIcon,
-  MagnifyingGlassIcon,
+import { 
+  PlusIcon, 
+  MagnifyingGlassIcon, 
   FunnelIcon,
   AcademicCapIcon,
+  UserIcon,
   UserGroupIcon,
+  BuildingOfficeIcon,
+  EyeIcon,
   PencilIcon,
   TrashIcon,
-  EyeIcon,
-  ClockIcon,
-  UserIcon,
-  BuildingOfficeIcon
+  ClockIcon
 } from '@heroicons/react/24/outline'
+import { useAuth } from '../contexts/AuthContext'
+import { classesAPI, usersAPI } from '../utils/api'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ClassModal from '../components/ClassModal'
 import ClassDetailModal from '../components/ClassDetailModal'
 import TimetableModal from '../components/TimetableModal'
+import toast from 'react-hot-toast'
 
 function Classes() {
   const { hasRole } = useAuth()
@@ -165,7 +165,7 @@ function Classes() {
 
   const canManageClasses = hasRole(['school_admin', 'principal'])
 
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner centered size="lg" />
   
   if (error) {
     return (
@@ -228,7 +228,7 @@ function Classes() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card">
           <div className="card-body text-center">
             <AcademicCapIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
@@ -278,31 +278,33 @@ function Classes() {
             </div>
 
             {/* Filters */}
-            <div className="flex items-center space-x-4">
-              <FunnelIcon className="h-5 w-5 text-gray-400" />
-              
-              <select
-                value={filters.grade}
-                onChange={(e) => setFilters({ ...filters, grade: e.target.value })}
-                className="input w-32"
-              >
-                <option value="">All Grades</option>
-                {grades.map((grade) => (
-                  <option key={grade} value={grade}>
-                    Grade {grade}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <FunnelIcon className="h-5 w-5 text-gray-400" />
+                
+                <select
+                  value={filters.grade}
+                  onChange={(e) => setFilters({ ...filters, grade: e.target.value })}
+                  className="input w-full sm:w-32"
+                >
+                  <option value="">All Grades</option>
+                  {grades.map((grade) => (
+                    <option key={grade} value={grade}>
+                      Grade {grade}
+                    </option>
+                  ))}
+                </select>
 
-              <select
-                value={filters.active}
-                onChange={(e) => setFilters({ ...filters, active: e.target.value })}
-                className="input w-32"
-              >
-                <option value="">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+                <select
+                  value={filters.active}
+                  onChange={(e) => setFilters({ ...filters, active: e.target.value })}
+                  className="input w-full sm:w-32"
+                >
+                  <option value="">All Status</option>
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -323,142 +325,227 @@ function Classes() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Class
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Class Teacher
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Students
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Room
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {classes.map((cls) => (
-                    <tr key={cls.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <AcademicCapIcon className="h-6 w-6 text-blue-600" />
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {cls.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              Grade {cls.grade} - Section {cls.section}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {cls.classTeacher ? (
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {cls.classTeacher.firstName} {cls.classTeacher.lastName}
-                            </div>
-                            <div className="text-gray-500">{cls.classTeacher.email}</div>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">Not Assigned</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <UserGroupIcon className="h-4 w-4 mr-2" />
-                          {cls.studentCount || 0} / {cls.maxStudents}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {cls.room ? (
-                          <div className="flex items-center">
-                            <BuildingOfficeIcon className="h-4 w-4 mr-2" />
-                            {cls.room}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">Not Set</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`badge ${
-                          cls.isActive 
-                            ? 'badge-success' 
-                            : 'badge-danger'
-                        }`}>
-                          {cls.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => handleViewClass(cls)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                            title="View Details"
-                          >
-                            <EyeIcon className="h-5 w-5" />
-                          </button>
-
-                          <button
-                            onClick={() => handleManageTimetable(cls)}
-                            className="text-gray-400 hover:text-purple-600 transition-colors"
-                            title="Manage Timetable"
-                          >
-                            <ClockIcon className="h-5 w-5" />
-                          </button>
-
-                          {canManageClasses && (
-                            <>
-                              <button
-                                onClick={() => handleEditClass(cls)}
-                                className="text-gray-400 hover:text-blue-600 transition-colors"
-                                title="Edit Class"
-                              >
-                                <PencilIcon className="h-5 w-5" />
-                              </button>
-                              
-                              <button
-                                onClick={() => handleDeleteClass(cls.id)}
-                                className="text-gray-400 hover:text-red-600 transition-colors"
-                                title="Delete Class"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Class
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Class Teacher
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Students
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Room
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {classes.map((cls) => (
+                      <tr key={cls.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <AcademicCapIcon className="h-6 w-6 text-blue-600" />
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {cls.name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                Grade {cls.grade} - Section {cls.section}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {cls.classTeacher ? (
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {cls.classTeacher.firstName} {cls.classTeacher.lastName}
+                              </div>
+                              <div className="text-gray-500">{cls.classTeacher.email}</div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Not Assigned</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <UserGroupIcon className="h-4 w-4 mr-2" />
+                            {cls.studentCount || 0} / {cls.maxStudents}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {cls.room ? (
+                            <div className="flex items-center">
+                              <BuildingOfficeIcon className="h-4 w-4 mr-2" />
+                              {cls.room}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">Not Set</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`badge ${
+                            cls.isActive 
+                              ? 'badge-success' 
+                              : 'badge-danger'
+                          }`}>
+                            {cls.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => handleViewClass(cls)}
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                              title="View Details"
+                            >
+                              <EyeIcon className="h-5 w-5" />
+                            </button>
+
+                            <button
+                              onClick={() => handleManageTimetable(cls)}
+                              className="text-gray-400 hover:text-purple-600 transition-colors"
+                              title="Manage Timetable"
+                            >
+                              <ClockIcon className="h-5 w-5" />
+                            </button>
+
+                            {canManageClasses && (
+                              <>
+                                <button
+                                  onClick={() => handleEditClass(cls)}
+                                  className="text-gray-400 hover:text-blue-600 transition-colors"
+                                  title="Edit Class"
+                                >
+                                  <PencilIcon className="h-5 w-5" />
+                                </button>
+                                
+                                <button
+                                  onClick={() => handleDeleteClass(cls.id)}
+                                  className="text-gray-400 hover:text-red-600 transition-colors"
+                                  title="Delete Class"
+                                >
+                                  <TrashIcon className="h-5 w-5" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-4 p-4">
+                {classes.map((cls) => (
+                  <div key={cls.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    {/* Header */}
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="flex-shrink-0 h-12 w-12">
+                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                          <AcademicCapIcon className="h-6 w-6 text-blue-600" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-medium text-gray-900 truncate">{cls.name}</h3>
+                        <p className="text-sm text-gray-500">Grade {cls.grade} - Section {cls.section}</p>
+                      </div>
+                      <span className={`badge text-xs ${
+                        cls.isActive ? 'badge-success' : 'badge-danger'
+                      }`}>
+                        {cls.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+
+                    {/* Details */}
+                    <div className="space-y-2 text-sm mb-4">
+                      <div>
+                        <span className="text-gray-500">Class Teacher: </span>
+                        <span className="text-gray-900">
+                          {cls.classTeacher 
+                            ? `${cls.classTeacher.firstName} ${cls.classTeacher.lastName}`
+                            : 'Not Assigned'
+                          }
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Students: </span>
+                        <span className="text-gray-900">{cls.studentCount || 0} / {cls.maxStudents}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Room: </span>
+                        <span className="text-gray-900">{cls.room || 'Not Set'}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleViewClass(cls)}
+                        className="btn-outline text-xs px-3 py-1 flex items-center"
+                      >
+                        <EyeIcon className="h-4 w-4 mr-1" />
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleManageTimetable(cls)}
+                        className="btn-outline text-xs px-3 py-1 flex items-center"
+                      >
+                        <ClockIcon className="h-4 w-4 mr-1" />
+                        Timetable
+                      </button>
+                      {canManageClasses && (
+                        <>
+                          <button
+                            onClick={() => handleEditClass(cls)}
+                            className="btn-outline text-xs px-3 py-1 flex items-center"
+                          >
+                            <PencilIcon className="h-4 w-4 mr-1" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClass(cls.id)}
+                            className="btn-danger text-xs px-3 py-1 flex items-center"
+                          >
+                            <TrashIcon className="h-4 w-4 mr-1" />
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="flex justify-center space-x-2">
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
-            className="btn-outline disabled:opacity-50"
+            className="btn-outline disabled:opacity-50 w-full sm:w-auto"
           >
             Previous
           </button>
@@ -468,7 +555,7 @@ function Classes() {
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === pagination.pages}
-            className="btn-outline disabled:opacity-50"
+            className="btn-outline disabled:opacity-50 w-full sm:w-auto"
           >
             Next
           </button>

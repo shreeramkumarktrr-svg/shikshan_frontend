@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import { eventsAPI } from '../utils/api'
@@ -145,19 +145,19 @@ function Events() {
 
   const canManageEvents = hasRole(['super_admin', 'school_admin', 'principal', 'teacher'])
 
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return <LoadingSpinner centered size="lg" />
   if (error) return <div className="text-red-600">Error loading events</div>
 
   const events = eventsData?.data?.events || []
   const pagination = eventsData?.data?.pagination || {}
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Events & Announcements</h1>
-          <p className="text-gray-600">Manage school events and announcements</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Events & Announcements</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage school events and announcements</p>
         </div>
         {canManageEvents && (
           <button
@@ -165,7 +165,7 @@ function Events() {
               setSelectedEvent(null)
               setIsCreateModalOpen(true)
             }}
-            className="btn-primary"
+            className="btn-primary w-full sm:w-auto"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Create Event
@@ -176,13 +176,13 @@ function Events() {
       {/* Filters */}
       <div className="card">
         <div className="card-body">
-          <div className="flex items-center space-x-4">
-            <FunnelIcon className="h-5 w-5 text-gray-400" />
-            <div className="flex space-x-4 flex-1">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <FunnelIcon className="h-5 w-5 text-gray-400 hidden sm:block" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 flex-1 w-full">
               <select
                 value={filters.type}
                 onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                className="input w-40"
+                className="input w-full"
               >
                 <option value="">All Types</option>
                 <option value="announcement">Announcement</option>
@@ -196,7 +196,7 @@ function Events() {
               <select
                 value={filters.priority}
                 onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                className="input w-40"
+                className="input w-full"
               >
                 <option value="">All Priorities</option>
                 <option value="low">Low</option>
@@ -209,7 +209,7 @@ function Events() {
                 <select
                   value={filters.published}
                   onChange={(e) => setFilters({ ...filters, published: e.target.value })}
-                  className="input w-40"
+                  className="input w-full"
                 >
                   <option value="">All Status</option>
                   <option value="true">Published</option>
@@ -240,23 +240,58 @@ function Events() {
           events.map((event) => (
             <div key={event.id} className="card hover:shadow-md transition-shadow">
               <div className="card-body">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                      <span className={`badge ${getEventTypeColor(event.type)}`}>
-                        {event.type}
-                      </span>
-                      {!event.isPublished && (
-                        <span className="badge bg-gray-100 text-gray-800">Draft</span>
-                      )}
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{event.title}</h3>
+                      <div className="flex items-center space-x-2">
+                        <span className={`badge text-xs ${getEventTypeColor(event.type)}`}>
+                          {event.type}
+                        </span>
+                        {!event.isPublished && (
+                          <span className="badge bg-gray-100 text-gray-800 text-xs">Draft</span>
+                        )}
+                      </div>
                     </div>
 
                     {event.description && (
-                      <p className="text-gray-600 mb-3 line-clamp-2">{event.description}</p>
+                      <p className="text-sm sm:text-base text-gray-600 mb-3 line-clamp-2">{event.description}</p>
                     )}
 
-                    <div className="flex items-center space-x-6 text-sm text-gray-500">
+                    {/* Mobile Layout */}
+                    <div className="sm:hidden space-y-2 text-sm text-gray-500">
+                      {event.startDate && (
+                        <div className="flex items-center">
+                          <CalendarIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span>{new Date(event.startDate).toLocaleDateString()}</span>
+                          <ClockIcon className="h-4 w-4 ml-3 mr-1 flex-shrink-0" />
+                          <span>{new Date(event.startDate).toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}</span>
+                        </div>
+                      )}
+                      
+                      {event.location && (
+                        <div className="flex items-center">
+                          <MapPinIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      )}
+
+                      <div className="flex items-center">
+                        <UserGroupIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="truncate">{event.targetAudience.join(', ')}</span>
+                      </div>
+
+                      <div className={`flex items-center ${getPriorityColor(event.priority)}`}>
+                        <ExclamationTriangleIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="capitalize">{event.priority} Priority</span>
+                      </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden sm:flex items-center space-x-6 text-sm text-gray-500">
                       {event.startDate && (
                         <div className="flex items-center">
                           <CalendarIcon className="h-4 w-4 mr-1" />
@@ -299,7 +334,7 @@ function Events() {
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-2 ml-4">
+                  <div className="flex items-center space-x-2 mt-3 sm:mt-0 sm:ml-4 justify-end sm:justify-start">
                     <button
                       onClick={() => handleViewEvent(event)}
                       className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -336,11 +371,11 @@ function Events() {
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="flex justify-center space-x-2">
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 1}
-            className="btn-outline disabled:opacity-50"
+            className="btn-outline disabled:opacity-50 w-full sm:w-auto"
           >
             Previous
           </button>
@@ -350,7 +385,7 @@ function Events() {
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === pagination.pages}
-            className="btn-outline disabled:opacity-50"
+            className="btn-outline disabled:opacity-50 w-full sm:w-auto"
           >
             Next
           </button>

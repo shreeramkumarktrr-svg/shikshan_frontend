@@ -76,25 +76,25 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900">{fee.title}</h3>
-            <p className="text-gray-600">{fee.class?.name} - {fee.class?.section}</p>
+      <div className="relative top-2 sm:top-10 mx-auto p-2 sm:p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white max-h-[98vh] sm:max-h-none overflow-y-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start mb-4 space-y-2 sm:space-y-0">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 break-words">{fee.title}</h3>
+            <p className="text-sm sm:text-base text-gray-600">{fee.class?.name} - {fee.class?.section}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 p-1 self-end sm:self-auto"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Fee Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Fee Details</h4>
             <div className="space-y-2 text-sm">
               <div><span className="font-medium">Amount:</span> ₹{fee.amount}</div>
@@ -102,12 +102,12 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
               <div><span className="font-medium">Status:</span> {getStatusBadge(fee.status)}</div>
               <div><span className="font-medium">Created by:</span> {fee.creator?.firstName} {fee.creator?.lastName}</div>
               {fee.description && (
-                <div><span className="font-medium">Description:</span> {fee.description}</div>
+                <div><span className="font-medium">Description:</span> <span className="break-words">{fee.description}</span></div>
               )}
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
             <h4 className="font-semibold text-gray-900 mb-2">Collection Summary</h4>
             <div className="space-y-2 text-sm">
               <div><span className="font-medium">Total Amount:</span> ₹{totalAmount.toFixed(2)}</div>
@@ -119,28 +119,28 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
         </div>
 
         {/* Student Status Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-green-50 p-3 rounded-lg text-center">
-            <div className="text-2xl font-bold text-green-600">{paidStudents}</div>
-            <div className="text-sm text-green-800">Paid</div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div className="bg-green-50 p-2 sm:p-3 rounded-lg text-center">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{paidStudents}</div>
+            <div className="text-xs sm:text-sm text-green-800">Paid</div>
           </div>
-          <div className="bg-blue-50 p-3 rounded-lg text-center">
-            <div className="text-2xl font-bold text-blue-600">{partialStudents}</div>
-            <div className="text-sm text-blue-800">Partial</div>
+          <div className="bg-blue-50 p-2 sm:p-3 rounded-lg text-center">
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{partialStudents}</div>
+            <div className="text-xs sm:text-sm text-blue-800">Partial</div>
           </div>
-          <div className="bg-yellow-50 p-3 rounded-lg text-center">
-            <div className="text-2xl font-bold text-yellow-600">{pendingStudents}</div>
-            <div className="text-sm text-yellow-800">Pending</div>
+          <div className="bg-yellow-50 p-2 sm:p-3 rounded-lg text-center">
+            <div className="text-lg sm:text-2xl font-bold text-yellow-600">{pendingStudents}</div>
+            <div className="text-xs sm:text-sm text-yellow-800">Pending</div>
           </div>
-          <div className="bg-red-50 p-3 rounded-lg text-center">
-            <div className="text-2xl font-bold text-red-600">{overdueStudents}</div>
-            <div className="text-sm text-red-800">Overdue</div>
+          <div className="bg-red-50 p-2 sm:p-3 rounded-lg text-center">
+            <div className="text-lg sm:text-2xl font-bold text-red-600">{overdueStudents}</div>
+            <div className="text-xs sm:text-sm text-red-800">Overdue</div>
           </div>
         </div>
 
         {/* Student Fees List */}
         <div className="bg-white border rounded-lg overflow-hidden">
-          <div className="px-4 py-3 bg-gray-50 border-b flex justify-between items-center">
+          <div className="px-3 sm:px-4 py-3 bg-gray-50 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
             <h4 className="font-semibold text-gray-900">Student Payment Status</h4>
             <div className="flex items-center gap-2">
               {loading && (
@@ -156,7 +156,80 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
               </button>
             </div>
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          
+          {/* Mobile Layout */}
+          <div className="sm:hidden max-h-96 overflow-y-auto">
+            {studentFees.map((studentFee) => {
+              const balance = parseFloat(studentFee.amount || studentFee.fee?.amount || 0) - parseFloat(studentFee.paidAmount || 0);
+              const isStudentOverdue = isOverdue(fee.dueDate, studentFee.status);
+              
+              return (
+                <div key={studentFee.id} className={`border-b border-gray-200 p-3 ${isStudentOverdue ? 'bg-red-50' : 'hover:bg-gray-50'}`}>
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-gray-900">
+                          {studentFee.student?.user?.firstName || studentFee.student?.firstName} {studentFee.student?.user?.lastName || studentFee.student?.lastName}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Roll: {studentFee.student?.rollNumber}
+                        </div>
+                      </div>
+                      <div className="ml-2">
+                        {getStatusBadge(isStudentOverdue && studentFee.status !== 'paid' ? 'overdue' : studentFee.status)}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <span className="text-gray-500">Amount:</span>
+                        <div className="font-medium">₹{parseFloat(studentFee.amount || studentFee.fee?.amount || 0).toFixed(2)}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Paid:</span>
+                        <div className="font-medium text-green-600">₹{parseFloat(studentFee.paidAmount || 0).toFixed(2)}</div>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Balance:</span>
+                        <div className="font-medium">₹{balance.toFixed(2)}</div>
+                      </div>
+                    </div>
+                    
+                    {canManage && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <button
+                          onClick={() => {
+                            setSelectedStudentFee(studentFee);
+                            setShowStudentUpdateModal(true);
+                          }}
+                          className="text-indigo-600 hover:text-indigo-900 text-xs font-medium"
+                        >
+                          Update
+                        </button>
+                        {studentFee.status !== 'paid' && (
+                          <button
+                            onClick={() => onPayment(studentFee)}
+                            className="text-blue-600 hover:text-blue-900 text-xs font-medium"
+                          >
+                            Quick Pay
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    
+                    {studentFee.paidDate && (
+                      <div className="text-xs text-gray-500">
+                        Paid: {new Date(studentFee.paidDate).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden sm:block max-h-96 overflow-y-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50 sticky top-0">
                 <tr>
@@ -247,12 +320,12 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
           </div>
         </div>
 
-        <div className="flex justify-between mt-6">
+        <div className="flex flex-col sm:flex-row justify-between mt-4 sm:mt-6 space-y-2 sm:space-y-0">
           <div>
             {canManage && (
               <button
                 onClick={() => setShowUpdateModal(true)}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 w-full sm:w-auto"
               >
                 Update Payments
               </button>
@@ -260,7 +333,7 @@ const FeeDetailModal = ({ fee: initialFee, onClose, onPayment, canManage, onRefr
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 w-full sm:w-auto"
           >
             Close
           </button>

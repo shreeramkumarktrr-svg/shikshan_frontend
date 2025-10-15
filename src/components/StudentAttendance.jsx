@@ -141,41 +141,41 @@ function StudentAttendance() {
     <div className="space-y-6">
       {/* Quick Stats */}
       {filters.classId && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="card">
             <div className="card-body text-center">
-              <UserGroupIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{totalRecords}</div>
-              <div className="text-sm text-gray-500">Total Records</div>
+              <UserGroupIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{totalRecords}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Total Records</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <CheckCircleIcon className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{presentCount}</div>
-              <div className="text-sm text-gray-500">Present</div>
+              <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{presentCount}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Present</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <XCircleIcon className="h-8 w-8 text-red-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{stats.absent || 0}</div>
-              <div className="text-sm text-gray-500">Absent</div>
+              <XCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{stats.absent || 0}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Absent</div>
             </div>
           </div>
           <div className="card">
             <div className="card-body text-center">
-              <AcademicCapIcon className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">{attendancePercentage}%</div>
-              <div className="text-sm text-gray-500">Attendance Rate</div>
+              <AcademicCapIcon className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 mx-auto mb-2" />
+              <div className="text-lg sm:text-2xl font-bold text-gray-900">{attendancePercentage}%</div>
+              <div className="text-xs sm:text-sm text-gray-500">Attendance Rate</div>
             </div>
           </div>
         </div>
       )}
 
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center space-x-4">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Select Class
@@ -186,7 +186,7 @@ function StudentAttendance() {
                 setSelectedClass(e.target.value)
                 setFilters({ ...filters, classId: e.target.value })
               }}
-              className="input w-64"
+              className="input w-full"
             >
               <option value="">Select a class</option>
               {classes.map((cls) => (
@@ -204,14 +204,14 @@ function StudentAttendance() {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="input"
+              className="input w-full"
             />
           </div>
           {canMarkAttendance && selectedClass && (
-            <div className="pt-6">
+            <div className="flex items-end">
               <button
                 onClick={() => setIsMarkingModalOpen(true)}
-                className="btn-primary"
+                className="btn-primary w-full sm:w-auto"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Mark Attendance
@@ -225,7 +225,8 @@ function StudentAttendance() {
       {selectedClass && (
         <div className="card">
           <div className="card-body">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Filter by Date Range</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   From Date
@@ -234,7 +235,7 @@ function StudentAttendance() {
                   type="date"
                   value={filters.startDate}
                   onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                  className="input"
+                  className="input w-full"
                 />
               </div>
               <div>
@@ -245,7 +246,7 @@ function StudentAttendance() {
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                  className="input"
+                  className="input w-full"
                 />
               </div>
             </div>
@@ -280,75 +281,132 @@ function StudentAttendance() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Student
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Period
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Marked By
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Remarks
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {attendance.map((record) => (
-                    <tr key={record.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <UserGroupIcon className="h-6 w-6 text-gray-400" />
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {record.student?.firstName} {record.student?.lastName}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {record.class?.name} - {record.class?.grade}{record.class?.section}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(record.date).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          {getStatusIcon(record.status)}
-                          <span className={`ml-2 badge ${getStatusColor(record.status)}`}>
-                            {record.status.replace('_', ' ')}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {record.period ? `Period ${record.period}` : 'Full Day'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {record.teacher?.firstName} {record.teacher?.lastName}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {record.remarks || '-'}
-                      </td>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Student
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Period
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Marked By
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Remarks
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {attendance.map((record) => (
+                      <tr key={record.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                <UserGroupIcon className="h-6 w-6 text-gray-400" />
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {record.student?.firstName} {record.student?.lastName}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {record.class?.name} - {record.class?.grade}{record.class?.section}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(record.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {getStatusIcon(record.status)}
+                            <span className={`ml-2 badge ${getStatusColor(record.status)}`}>
+                              {record.status.replace('_', ' ')}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {record.period ? `Period ${record.period}` : 'Full Day'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {record.teacher?.firstName} {record.teacher?.lastName}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {record.remarks || '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-4 p-4">
+                {attendance.map((record) => (
+                  <div key={record.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    {/* Header */}
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                          <UserGroupIcon className="h-6 w-6 text-gray-400" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                          {record.student?.firstName} {record.student?.lastName}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          {record.class?.name} - {record.class?.grade}{record.class?.section}
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        {getStatusIcon(record.status)}
+                        <span className={`ml-2 badge text-xs ${getStatusColor(record.status)}`}>
+                          {record.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <span className="text-gray-500">Date: </span>
+                        <span className="text-gray-900">{new Date(record.date).toLocaleDateString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Period: </span>
+                        <span className="text-gray-900">{record.period ? `Period ${record.period}` : 'Full Day'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Marked By: </span>
+                        <span className="text-gray-900">
+                          {record.teacher?.firstName} {record.teacher?.lastName}
+                        </span>
+                      </div>
+                      {record.remarks && (
+                        <div>
+                          <span className="text-gray-500">Remarks: </span>
+                          <span className="text-gray-900">{record.remarks}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

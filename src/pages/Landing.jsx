@@ -169,7 +169,7 @@ const Landing = () => {
             </div>
 
             {/* Interactive Particle System */}
-            <div className="relative w-96 h-96 mx-auto">
+            <div className="relative w-96 h-96 mx-auto hidden lg:block">
               <InteractiveParticles />
             </div>
           </div>

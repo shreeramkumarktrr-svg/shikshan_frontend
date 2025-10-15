@@ -65,26 +65,26 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
   ]
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {classData ? 'Edit Class' : 'Add New Class'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Basic Information */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Basic Information</h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Class Name *
@@ -124,7 +124,7 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Section *
@@ -166,9 +166,9 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
 
           {/* Capacity and Room */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Capacity & Location</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Capacity & Location</h3>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Maximum Students *
@@ -206,16 +206,16 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
 
           {/* Subjects */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Subjects</h3>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Subjects</h3>
             <div className="space-y-2">
-              <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
                 {commonSubjects.map((subject) => (
                   <label key={subject} className="flex items-center">
                     <input
                       type="checkbox"
                       value={subject}
                       {...register('subjects')}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
                     />
                     <span className="ml-2 text-sm text-gray-700">{subject}</span>
                   </label>
@@ -228,18 +228,18 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn-outline"
+              className="btn-outline w-full sm:w-auto order-2 sm:order-1"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto order-1 sm:order-2"
               disabled={isLoading}
             >
               {isLoading ? (

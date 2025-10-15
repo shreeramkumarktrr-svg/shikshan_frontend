@@ -2,6 +2,94 @@ import { useState, useEffect } from 'react'
 import { MagnifyingGlassIcon, FunnelIcon, EyeIcon, PlusIcon } from '@heroicons/react/24/outline'
 import api from '../../utils/api'
 
+// Mobile Payment Card Component
+function PaymentCard({ payment, onProcessPayment, getStatusColor }) {
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-gray-900 truncate">{payment.school?.name || 'N/A'}</div>
+          <div className="text-sm text-gray-500 truncate">{payment.school?.email || 'N/A'}</div>
+        </div>
+        <div className="flex space-x-2 ml-2">
+          {payment.status === 'pending' && (
+            <>
+              <button
+                onClick={() => onProcessPayment(payment.id, 'success')}
+                className="text-green-600 hover:text-green-900 text-xs px-2 py-1 border border-green-300 rounded"
+              >
+                Process
+              </button>
+              <button
+                onClick={() => onProcessPayment(payment.id, 'fail')}
+                className="text-red-600 hover:text-red-900 text-xs px-2 py-1 border border-red-300 rounded"
+              >
+                Fail
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-20 flex-shrink-0">Plan:</span>
+          <div className="flex-1">
+            <span className="text-xs text-gray-900">{payment.subscription?.name || 'N/A'}</span>
+            <div className="text-xs text-gray-500">{payment.subscription?.planType || 'N/A'}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-20 flex-shrink-0">Amount:</span>
+          <div className="flex-1">
+            <span className="text-xs font-medium text-gray-900">₹{payment.amount}</span>
+            {payment.taxAmount > 0 && (
+              <div className="text-xs text-gray-500">Tax: ₹{payment.taxAmount}</div>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-20 flex-shrink-0">Date:</span>
+          <div className="flex-1">
+            <span className="text-xs text-gray-900">
+              {new Date(payment.createdAt).toLocaleDateString()}
+            </span>
+            {payment.paidAt && (
+              <div className="text-xs text-gray-500">
+                Paid: {new Date(payment.paidAt).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-start">
+          <span className="text-xs text-gray-500 w-20 flex-shrink-0">Transaction:</span>
+          <div className="flex-1">
+            <span className="text-xs text-gray-900 font-mono break-all">{payment.transactionId}</span>
+            {payment.invoiceNumber && (
+              <div className="text-xs text-gray-500">{payment.invoiceNumber}</div>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <span className="text-xs text-gray-500 w-20 flex-shrink-0">Method:</span>
+            <span className="text-xs text-gray-900">
+              {payment.paymentMethod?.replace('_', ' ').toUpperCase() || 'Not set'}
+            </span>
+          </div>
+          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
+            {payment.status}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Payments() {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -81,15 +169,18 @@ function Payments() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Payments</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage school subscription payments</p>
+        </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center w-full sm:w-auto"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
-          Create Payment
+          <span className="sm:inline">Create Payment</span>
         </button>
       </div>
 
@@ -124,8 +215,8 @@ function Payments() {
         </div>
       </div>
 
-      {/* Payments Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      {/* Payments Table - Desktop */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -224,6 +315,19 @@ function Payments() {
             </tbody>
           </table>
         </div>
+        
+        {payments.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No payments found matching your criteria.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Payments Cards - Mobile & Tablet */}
+      <div className="lg:hidden space-y-4">
+        {payments.map((payment) => (
+          <PaymentCard key={payment.id} payment={payment} onProcessPayment={handleProcessPayment} getStatusColor={getStatusColor} />
+        ))}
         
         {payments.length === 0 && !loading && (
           <div className="text-center py-12">
@@ -389,9 +493,9 @@ function CreatePaymentModal({ onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Create Payment</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Create Payment</h2>
         
         {errors.general && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -400,7 +504,7 @@ function CreatePaymentModal({ onClose, onSubmit }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 School *
@@ -446,7 +550,7 @@ function CreatePaymentModal({ onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Amount *
@@ -491,7 +595,7 @@ function CreatePaymentModal({ onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Billing Period Start *
@@ -519,7 +623,7 @@ function CreatePaymentModal({ onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Due Date
@@ -564,18 +668,18 @@ function CreatePaymentModal({ onClose, onSubmit }) {
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Create Payment'}

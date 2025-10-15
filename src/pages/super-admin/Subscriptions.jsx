@@ -90,57 +90,60 @@ function Subscriptions() {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Subscription Plans</h1>
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Subscription Plans</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage subscription plans and pricing</p>
+        </div>
         <button
           onClick={() => {
             setEditingSubscription(null)
             setShowModal(true)
           }}
-          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+          className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center w-full sm:w-auto"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
-          Add Plan
+          <span className="sm:inline">Add Plan</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {subscriptions.map((subscription) => (
-          <div key={subscription.id} className={`bg-white rounded-lg shadow-md p-6 border-2 ${
+          <div key={subscription.id} className={`bg-white rounded-lg shadow-md p-4 sm:p-6 border-2 ${
             subscription.isPopular ? 'border-primary-500 relative' : 'border-gray-200'
           }`}>
             {subscription.isPopular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                <span className="bg-primary-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
                   Most Popular
                 </span>
               </div>
             )}
             
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">{subscription.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{subscription.description}</p>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-3 sm:space-y-0">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">{subscription.name}</h3>
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{subscription.description}</p>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 flex-shrink-0">
                 <button
                   onClick={() => handleViewAnalytics(subscription)}
-                  className="text-green-600 hover:text-green-800"
+                  className="text-green-600 hover:text-green-800 p-1"
                   title="View Analytics"
                 >
                   <ChartBarIcon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => handleEdit(subscription)}
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-blue-600 hover:text-blue-800 p-1"
                   title="Edit"
                 >
                   <PencilIcon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => handleDelete(subscription.id)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1"
                   title="Deactivate"
                 >
                   <TrashIcon className="h-5 w-5" />
@@ -149,30 +152,30 @@ function Subscriptions() {
             </div>
             
             <div className="mb-4">
-              <span className="text-3xl font-bold text-gray-900">₹{subscription.price}</span>
-              <span className="text-gray-600">/{subscription.billingCycle}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900">₹{subscription.price}</span>
+              <span className="text-gray-600 text-sm sm:text-base">/{subscription.billingCycle}</span>
             </div>
 
             <div className="mb-4">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-600 mb-2">
                 <span>Students: {subscription.maxStudents}</span>
                 <span>Teachers: {subscription.maxTeachers}</span>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-xs sm:text-sm text-gray-600">
                 Classes: {subscription.maxClasses} | Trial: {subscription.trialDays} days
               </div>
             </div>
             
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Core Features:</h4>
-              <div className="grid grid-cols-2 gap-1 text-xs">
+              <h4 className="text-xs sm:text-sm font-medium text-gray-900 mb-2">Core Features:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs">
                 {/* Show core school management features first */}
                 {['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].slice(0, 6).map((key) => {
                   const value = subscription.features[key];
                   return (
                     <div key={key} className={`flex items-center ${value ? 'text-green-600' : 'text-gray-400'}`}>
-                      <span className={`w-2 h-2 rounded-full mr-2 ${value ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                      {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                      <span className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${value ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                      <span className="truncate">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
                     </div>
                   );
                 })}
@@ -189,15 +192,15 @@ function Subscriptions() {
               )}
             </div>
             
-            <div className="flex justify-between items-center">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium self-start ${
                 subscription.isActive 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-red-100 text-red-800'
               }`}>
                 {subscription.isActive ? 'Active' : 'Inactive'}
               </span>
-              <div className="text-right">
+              <div className="text-left sm:text-right">
                 <div className="text-sm font-medium text-gray-900">{subscription.schoolCount || 0} schools</div>
                 <div className="text-xs text-gray-500">{subscription.activeSchoolCount || 0} active</div>
               </div>
@@ -347,9 +350,9 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">
           {subscription ? 'Edit Subscription' : 'Create Subscription'}
         </h2>
         
@@ -359,9 +362,9 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Plan Name *
@@ -410,7 +413,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
           </div>
 
           {/* Pricing */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Price *
@@ -459,7 +462,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
           </div>
 
           {/* Limits */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Trial Days
@@ -523,7 +526,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
             {/* Core School Management Features */}
             <div className="mb-4">
               <h4 className="text-sm font-medium text-gray-900 mb-2">Core School Management Features</h4>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-3 bg-blue-50 rounded-lg">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-3 bg-blue-50 rounded-lg">
                 {['dashboard', 'teachers', 'students', 'classes', 'attendance', 'homework', 'events', 'complaints', 'fees', 'reports'].map((feature) => (
                   <label key={feature} className="flex items-center">
                     <input
@@ -543,7 +546,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
             {/* Premium Features */}
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-2">Premium Features</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-yellow-50 rounded-lg">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 p-3 bg-yellow-50 rounded-lg">
                 {['smsNotifications', 'emailNotifications', 'mobileApp', 'customBranding', 'apiAccess', 'advancedReports', 'bulkImport', 'parentPortal'].map((feature) => (
                   <label key={feature} className="flex items-center">
                     <input
@@ -562,7 +565,7 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
           </div>
 
           {/* Settings */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Sort Order
@@ -600,18 +603,18 @@ function SubscriptionModal({ subscription, onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? 'Saving...' : (subscription ? 'Update' : 'Create')}
@@ -644,13 +647,13 @@ function AnalyticsModal({ subscription, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Analytics - {subscription.name}</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-bold truncate pr-4">Analytics - {subscription.name}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 flex-shrink-0"
           >
             ✕
           </button>
@@ -661,15 +664,15 @@ function AnalyticsModal({ subscription, onClose }) {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* School Statistics */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">School Distribution</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <h3 className="text-base sm:text-lg font-semibold mb-4">School Distribution</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 {Object.entries(analytics?.schoolStats || {}).map(([status, count]) => (
-                  <div key={status} className="bg-gray-50 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-gray-900">{count}</div>
-                    <div className="text-sm text-gray-600 capitalize">{status.replace('_', ' ')}</div>
+                  <div key={status} className="bg-gray-50 p-3 sm:p-4 rounded-lg text-center">
+                    <div className="text-lg sm:text-2xl font-bold text-gray-900">{count}</div>
+                    <div className="text-xs sm:text-sm text-gray-600 capitalize">{status.replace('_', ' ')}</div>
                   </div>
                 ))}
               </div>
@@ -677,25 +680,25 @@ function AnalyticsModal({ subscription, onClose }) {
 
             {/* Revenue Statistics */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Revenue Statistics</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
+              <h3 className="text-base sm:text-lg font-semibold mb-4">Revenue Statistics</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="bg-green-50 p-3 sm:p-4 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-green-600">
                     ₹{analytics?.revenue?.total?.toLocaleString() || 0}
                   </div>
-                  <div className="text-sm text-gray-600">Total Revenue</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Total Revenue</div>
                 </div>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-blue-600">
                     {analytics?.revenue?.totalPayments || 0}
                   </div>
-                  <div className="text-sm text-gray-600">Total Payments</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Total Payments</div>
                 </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">
+                <div className="bg-purple-50 p-3 sm:p-4 rounded-lg">
+                  <div className="text-lg sm:text-2xl font-bold text-purple-600">
                     ₹{Math.round(analytics?.revenue?.total / Math.max(analytics?.revenue?.totalPayments, 1) || 0)}
                   </div>
-                  <div className="text-sm text-gray-600">Avg Payment</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Avg Payment</div>
                 </div>
               </div>
             </div>
@@ -703,8 +706,8 @@ function AnalyticsModal({ subscription, onClose }) {
             {/* Monthly Revenue Trend */}
             {analytics?.revenue?.monthly?.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Monthly Revenue Trend</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Revenue Trend</h3>
+                <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                   <div className="space-y-2">
                     {analytics.revenue.monthly.map((month, index) => (
                       <div key={index} className="flex justify-between items-center">

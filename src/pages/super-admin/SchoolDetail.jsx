@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { 
+import {
   ArrowLeftIcon,
   PencilIcon,
   UserGroupIcon,
@@ -12,9 +12,7 @@ import {
   EnvelopeIcon,
   GlobeAltIcon,
   MapPinIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
 import api from '../../utils/api'
 
@@ -213,58 +211,56 @@ function SchoolDetail() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
         <div className="flex items-center">
           <Link
             to="/app/schools"
-            className="mr-4 p-2 text-gray-400 hover:text-gray-600"
+            className="mr-3 sm:mr-4 p-2 text-gray-400 hover:text-gray-600"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{school.name}</h1>
-            <p className="text-gray-600">School Details & Management</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{school.name}</h1>
+            <p className="text-sm sm:text-base text-gray-600">School Details & Management</p>
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
           <button
             onClick={() => setShowSubscriptionModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center justify-center"
           >
             <CurrencyDollarIcon className="h-5 w-5 mr-2" />
-            Manage Subscription
+            <span className="hidden sm:inline">Manage Subscription</span>
+            <span className="sm:hidden">Subscription</span>
           </button>
           <button
             onClick={() => setShowEditModal(true)}
-            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center"
           >
             <PencilIcon className="h-5 w-5 mr-2" />
-            Edit School
+            <span className="hidden sm:inline">Edit School</span>
+            <span className="sm:hidden">Edit</span>
           </button>
         </div>
       </div>
 
       {/* Subscription Alert */}
       {(isSubscriptionExpiring() || isSubscriptionExpired()) && (
-        <div className={`mb-6 p-4 rounded-md ${
-          isSubscriptionExpired() ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'
-        }`}>
+        <div className={`mb-6 p-4 rounded-md ${isSubscriptionExpired() ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'
+          }`}>
           <div className="flex">
-            <ExclamationTriangleIcon className={`h-5 w-5 ${
-              isSubscriptionExpired() ? 'text-red-400' : 'text-yellow-400'
-            }`} />
+            <ExclamationTriangleIcon className={`h-5 w-5 ${isSubscriptionExpired() ? 'text-red-400' : 'text-yellow-400'
+              }`} />
             <div className="ml-3">
-              <h3 className={`text-sm font-medium ${
-                isSubscriptionExpired() ? 'text-red-800' : 'text-yellow-800'
-              }`}>
+              <h3 className={`text-sm font-medium ${isSubscriptionExpired() ? 'text-red-800' : 'text-yellow-800'
+                }`}>
                 {isSubscriptionExpired() ? 'Subscription Expired' : 'Subscription Expiring Soon'}
               </h3>
-              <p className={`text-sm ${
-                isSubscriptionExpired() ? 'text-red-700' : 'text-yellow-700'
-              }`}>
-                {isSubscriptionExpired() 
+              <p className={`text-sm ${isSubscriptionExpired() ? 'text-red-700' : 'text-yellow-700'
+                }`}>
+                {isSubscriptionExpired()
                   ? `This school's subscription expired on ${new Date(school.subscriptionExpiresAt).toLocaleDateString()}`
                   : `This school's subscription expires on ${new Date(school.subscriptionExpiresAt).toLocaleDateString()}`
                 }
@@ -274,13 +270,13 @@ function SchoolDetail() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* School Information */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           {/* Basic Info */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">School Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">School Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-4">
                 <div className="flex items-center">
                   <BuildingOfficeIcon className="h-5 w-5 text-gray-400 mr-3" />
@@ -337,56 +333,58 @@ function SchoolDetail() {
           </div>
 
           {/* Usage Statistics */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage Statistics</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <UserGroupIcon className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-blue-600">{stats?.users?.student || 0}</p>
-                <p className="text-sm text-gray-600">Students</p>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Usage Statistics</h3>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                <UserGroupIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-lg sm:text-2xl font-bold text-blue-600">{stats?.users?.student || 0}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Students</p>
                 <p className="text-xs text-gray-500">Limit: {school.maxStudents}</p>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <AcademicCapIcon className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-green-600">{stats?.users?.teacher || 0}</p>
-                <p className="text-sm text-gray-600">Teachers</p>
+              <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                <AcademicCapIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
+                <p className="text-lg sm:text-2xl font-bold text-green-600">{stats?.users?.teacher || 0}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Teachers</p>
                 <p className="text-xs text-gray-500">Limit: {school.maxTeachers}</p>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <UserGroupIcon className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-purple-600">{stats?.users?.parent || 0}</p>
-                <p className="text-sm text-gray-600">Parents</p>
+              <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
+                <UserGroupIcon className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mx-auto mb-2" />
+                <p className="text-lg sm:text-2xl font-bold text-purple-600">{stats?.users?.parent || 0}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Parents</p>
               </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <BuildingOfficeIcon className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-orange-600">{stats?.users?.school_admin || 0}</p>
-                <p className="text-sm text-gray-600">Admins</p>
+              <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-lg">
+                <BuildingOfficeIcon className="h-6 w-6 sm:h-8 sm:w-8 text-orange-600 mx-auto mb-2" />
+                <p className="text-lg sm:text-2xl font-bold text-orange-600">{stats?.users?.school_admin || 0}</p>
+                <p className="text-xs sm:text-sm text-gray-600">Admins</p>
               </div>
             </div>
           </div>
 
           {/* Recent Users */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Users</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Recent Users</h3>
             <div className="space-y-3">
               {school.users?.slice(0, 5).map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary-600">
-                        {user.firstName?.[0]}{user.lastName?.[0]}
-                      </span>
+                <div key={user.id} className="p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center min-w-0 flex-1">
+                      <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-medium text-primary-600">
+                          {user.firstName?.[0]}{user.lastName?.[0]}
+                        </span>
+                      </div>
+                      <div className="ml-3 min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {user.firstName} {user.lastName}
+                        </p>
+                      </div>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
-                      </p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                    </div>
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 ml-2 flex-shrink-0">
+                      {user.role.replace('_', ' ')}
+                    </span>
                   </div>
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {user.role.replace('_', ' ')}
-                  </span>
+                  <p className="text-sm text-gray-500 truncate ml-11">{user.email}</p>
                 </div>
               ))}
               {(!school.users || school.users.length === 0) && (
@@ -397,10 +395,10 @@ function SchoolDetail() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Subscription Info */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Subscription</h3>
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-500">Status</p>
@@ -437,8 +435,8 @@ function SchoolDetail() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-2">
               <button
                 onClick={() => setShowSubscriptionModal(true)}
@@ -474,8 +472,8 @@ function SchoolDetail() {
           </div>
 
           {/* System Info */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">System Info</h3>
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">System Info</h3>
             <div className="space-y-3 text-sm">
               <div>
                 <p className="text-gray-500">Academic Year</p>
@@ -506,7 +504,7 @@ function SchoolDetail() {
           onSubmit={handleUpdateSubscription}
         />
       )}
-      
+
       {showEditModal && (
         <EditSchoolModal
           school={school}
@@ -543,7 +541,7 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     subscriptionStatus: school.subscriptionStatus,
     subscriptionId: school.subscriptionId,
-    subscriptionExpiresAt: school.subscriptionExpiresAt ? 
+    subscriptionExpiresAt: school.subscriptionExpiresAt ?
       new Date(school.subscriptionExpiresAt).toISOString().split('T')[0] : '',
     maxStudents: school.maxStudents,
     maxTeachers: school.maxTeachers
@@ -592,10 +590,10 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Manage Subscription</h2>
-        
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Manage Subscription</h2>
+
         {errors.general && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {errors.general}
@@ -678,18 +676,18 @@ function SubscriptionModal({ school, onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? 'Updating...' : 'Update Subscription'}
@@ -741,10 +739,10 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Edit School Information</h2>
-        
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">Edit School Information</h2>
+
         {errors.general && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {errors.general}
@@ -752,7 +750,7 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 School Name *
@@ -761,9 +759,8 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
@@ -834,7 +831,7 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Timezone
@@ -883,18 +880,18 @@ function EditSchoolModal({ school, onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? 'Updating...' : 'Update School'}
@@ -934,7 +931,7 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
       if (user && !submitData.password) {
         delete submitData.password
       }
-      
+
       await onSubmit(submitData)
     } catch (error) {
       if (error.response?.data?.details) {
@@ -953,10 +950,10 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">{title}</h2>
-        
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold mb-4">{title}</h2>
+
         {errors.general && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {errors.general}
@@ -964,7 +961,7 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 First Name *
@@ -973,9 +970,8 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
                 type="text"
                 value={formData.firstName}
                 onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.firstName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
@@ -989,9 +985,8 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
                 type="text"
                 value={formData.lastName}
                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.lastName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
@@ -1005,9 +1000,8 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
               />
               {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -1020,9 +1014,8 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 required
               />
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -1037,9 +1030,8 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:ring-primary-500 focus:border-primary-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required={!user}
                   minLength={6}
                 />
@@ -1108,18 +1100,18 @@ function UserModal({ title, user, role, onClose, onSubmit }) {
             />
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 w-full sm:w-auto"
               disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50"
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? (user ? 'Updating...' : 'Creating...') : (user ? `Update ${role.replace('_', ' ')}` : `Create ${role.replace('_', ' ')}`)}

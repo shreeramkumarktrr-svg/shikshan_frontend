@@ -50,47 +50,63 @@ function Attendance() {
       mode="show-message"
       showUpgrade={true}
     >
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Header */}
-          <div>
-        <h1 className="text-2xl font-bold text-gray-900">Attendance Management</h1>
-        <p className="text-gray-600">Mark and track attendance for students and staff</p>
-      </div>
+          <div className="px-4 sm:px-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Attendance Management</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Mark and track attendance for students and staff</p>
+          </div>
 
           {/* Tab Navigation */}
           <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {visibleTabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+            {/* Desktop Tab Navigation */}
+            <nav className="hidden sm:flex -mb-px space-x-8 px-4 sm:px-0">
+              {visibleTabs.map((tab) => {
+                const Icon = tab.icon
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                      activeTab === tab.id
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Icon
+                      className={`-ml-0.5 mr-2 h-5 w-5 ${
+                        activeTab === tab.id
+                          ? 'text-primary-500'
+                          : 'text-gray-400 group-hover:text-gray-500'
+                      }`}
+                    />
+                    {tab.name}
+                  </button>
+                )
+              })}
+            </nav>
+
+            {/* Mobile Tab Navigation */}
+            <div className="sm:hidden">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-sm"
               >
-                <Icon
-                  className={`-ml-0.5 mr-2 h-5 w-5 ${
-                    activeTab === tab.id
-                      ? 'text-primary-500'
-                      : 'text-gray-400 group-hover:text-gray-500'
-                  }`}
-                />
-                {tab.name}
-              </button>
-            )
-          })}
-        </nav>
-      </div>
+                {visibleTabs.map((tab) => (
+                  <option key={tab.id} value={tab.id}>
+                    {tab.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           {/* Tab Content */}
-          <div className="mt-6">
-        {activeTab === 'students' && <StudentAttendance />}
-        {activeTab === 'staff' && <StaffAttendance />}
-        {activeTab === 'reports' && hasRole(['school_admin', 'principal']) && <AttendanceReports />}
+          <div className="mt-4 sm:mt-6">
+            {activeTab === 'students' && <StudentAttendance />}
+            {activeTab === 'staff' && <StaffAttendance />}
+            {activeTab === 'reports' && hasRole(['school_admin', 'principal']) && <AttendanceReports />}
           </div>
         </div>
     </FeatureGuard>

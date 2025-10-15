@@ -96,8 +96,8 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-        <div className="mt-3">
+      <div className="relative top-4 sm:top-20 mx-auto p-2 sm:p-5 border w-full max-w-md shadow-lg rounded-md bg-white max-h-[95vh] sm:max-h-none overflow-y-auto">
+        <div className="mt-1 sm:mt-3">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             {fee ? 'Edit Fee' : 'Create New Fee'}
           </h3>
@@ -112,9 +112,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                className={`w-full border rounded-md px-3 py-2 ${
-                  errors.title ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`input ${errors.title ? 'input-error' : ''}`}
                 placeholder="e.g., Monthly Tuition Fee"
               />
               {errors.title && (
@@ -131,7 +129,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                className="input"
                 placeholder="Optional description"
               />
             </div>
@@ -147,9 +145,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                 onChange={handleChange}
                 min="0"
                 step="0.01"
-                className={`w-full border rounded-md px-3 py-2 ${
-                  errors.amount ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`input ${errors.amount ? 'input-error' : ''}`}
                 placeholder="0.00"
               />
               {errors.amount && (
@@ -166,9 +162,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleChange}
-                className={`w-full border rounded-md px-3 py-2 ${
-                  errors.dueDate ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`input ${errors.dueDate ? 'input-error' : ''}`}
               />
               {errors.dueDate && (
                 <p className="text-red-500 text-sm mt-1">{errors.dueDate}</p>
@@ -183,9 +177,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                 name="classId"
                 value={formData.classId}
                 onChange={handleChange}
-                className={`w-full border rounded-md px-3 py-2 ${
-                  errors.classId ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`input ${errors.classId ? 'input-error' : ''}`}
                 disabled={!!fee} // Disable class change when editing
               >
                 <option value="">Select Class</option>
@@ -214,7 +206,7 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="input"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -226,18 +218,18 @@ const FeeModal = ({ fee, classes, onClose, onSave }) => {
               <div className="text-red-500 text-sm">{errors.submit}</div>
             )}
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+                className="btn-outline w-full sm:w-auto order-2 sm:order-1"
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="btn-primary w-full sm:w-auto order-1 sm:order-2"
                 disabled={loading}
               >
                 {loading ? 'Saving...' : (fee ? 'Update Fee' : 'Create Fee')}

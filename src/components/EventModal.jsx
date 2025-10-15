@@ -10,8 +10,6 @@ function EventModal({ event, onSave, onClose, isLoading }) {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
-    watch,
     reset
   } = useForm({
     defaultValues: {
@@ -94,21 +92,21 @@ function EventModal({ event, onSave, onClose, isLoading }) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             {event ? 'Edit Event' : 'Create New Event'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -142,7 +140,7 @@ function EventModal({ event, onSave, onClose, isLoading }) {
           </div>
 
           {/* Type and Priority */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Type
@@ -171,7 +169,7 @@ function EventModal({ event, onSave, onClose, isLoading }) {
           </div>
 
           {/* Date and Time */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Start Date & Time
@@ -213,14 +211,14 @@ function EventModal({ event, onSave, onClose, isLoading }) {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Target Audience
             </label>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {audiences.map(audience => (
                 <label key={audience.value} className="flex items-center">
                   <input
                     type="checkbox"
                     checked={targetAudience.includes(audience.value)}
                     onChange={() => handleTargetAudienceChange(audience.value)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
                   />
                   <span className="ml-2 text-sm text-gray-700">{audience.label}</span>
                 </label>
@@ -229,12 +227,12 @@ function EventModal({ event, onSave, onClose, isLoading }) {
           </div>
 
           {/* Options */}
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label className="flex items-center">
               <input
                 {...register('sendNotification')}
                 type="checkbox"
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
               />
               <span className="ml-2 text-sm text-gray-700">Send notification</span>
             </label>
@@ -243,25 +241,25 @@ function EventModal({ event, onSave, onClose, isLoading }) {
               <input
                 {...register('isPublished')}
                 type="checkbox"
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
               />
               <span className="ml-2 text-sm text-gray-700">Publish immediately</span>
             </label>
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn-outline"
+              className="btn-outline w-full sm:w-auto order-2 sm:order-1"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-primary w-full sm:w-auto order-1 sm:order-2"
               disabled={isLoading}
             >
               {isLoading ? (

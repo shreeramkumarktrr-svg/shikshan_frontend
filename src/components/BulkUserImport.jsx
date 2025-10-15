@@ -195,31 +195,31 @@ Jane Smith,-,9999654321,student,1,10 A
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             Bulk User Import
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-140px)]">
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Instructions */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-medium text-blue-900 mb-2">
+              <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                <h3 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">
                   {userType === 'student' ? 'Student' : userType === 'teacher' ? 'Teacher' : 'User'} Import Instructions
                 </h3>
-                <ul className="text-sm text-blue-800 space-y-1">
+                <ul className="text-xs sm:text-sm text-blue-800 space-y-1">
                   <li>• Upload a CSV file with {userType || 'user'} data</li>
                   <li>• Required columns: NAME, ROLE, ROLL NUMBER, CLASS</li>
                   <li>• Optional columns: EMAIL, PHONE</li>
@@ -236,7 +236,7 @@ Jane Smith,-,9999654321,student,1,10 A
               <div className="text-center">
                 <button
                   onClick={downloadTemplate}
-                  className="btn-outline mb-4"
+                  className="btn-outline mb-4 w-full sm:w-auto"
                 >
                   <DocumentArrowUpIcon className="h-5 w-5 mr-2" />
                   Download Template
@@ -244,13 +244,13 @@ Jane Smith,-,9999654321,student,1,10 A
               </div>
 
               {/* File Upload */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                <DocumentArrowUpIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center">
+                <DocumentArrowUpIcon className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
                 <div className="space-y-2">
-                  <p className="text-lg font-medium text-gray-900">
+                  <p className="text-base sm:text-lg font-medium text-gray-900">
                     Upload CSV File
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-sm sm:text-base text-gray-500">
                     Select a CSV file containing user data
                   </p>
                   <input
@@ -262,12 +262,12 @@ Jane Smith,-,9999654321,student,1,10 A
                   />
                   <label
                     htmlFor="csv-upload"
-                    className="btn-primary cursor-pointer inline-block"
+                    className="btn-primary cursor-pointer inline-block w-full sm:w-auto"
                   >
                     Choose File
                   </label>
                   {selectedFile && (
-                    <p className="text-sm text-gray-600 mt-2">
+                    <p className="text-sm text-gray-600 mt-2 break-all">
                       Selected: {selectedFile.name}
                     </p>
                   )}
@@ -277,29 +277,30 @@ Jane Smith,-,9999654321,student,1,10 A
           )}
 
           {step === 2 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900">
                   Preview Import Data ({csvData.length} users)
                 </h3>
-                <div className="space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                   <button
                     onClick={() => setStep(1)}
-                    className="btn-outline"
+                    className="btn-outline w-full sm:w-auto"
                   >
                     Back
                   </button>
                   <button
                     onClick={handleImport}
                     disabled={bulkImportMutation.isLoading}
-                    className="btn-primary"
+                    className="btn-primary w-full sm:w-auto"
                   >
                     {bulkImportMutation.isLoading ? 'Importing...' : 'Import Users'}
                   </button>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
@@ -351,35 +352,79 @@ Jane Smith,-,9999654321,student,1,10 A
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Card View */}
+              <div className="sm:hidden space-y-3">
+                {csvData.map((user, index) => (
+                  <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          {user.firstName} {user.lastName}
+                        </h4>
+                        <span className="badge badge-primary text-xs mt-1">
+                          {(user.role || 'student').replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        #{index + 1}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <span className="text-gray-500">Email: </span>
+                        <span className="text-gray-900">{user.email || '-'}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Phone: </span>
+                        <span className="text-gray-900">{user.phone || 'Auto-generated'}</span>
+                      </div>
+                      {user.rollNumber && (
+                        <div>
+                          <span className="text-gray-500">Roll Number: </span>
+                          <span className="text-gray-900">{user.rollNumber}</span>
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-gray-500">Class: </span>
+                        <span className="text-gray-900">
+                          {user.classDisplayName || (user.classId ? 'Assigned' : 'Not assigned')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {step === 3 && results && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-900">
+            <div className="space-y-4 sm:space-y-6">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900">
                 Import Results
               </h3>
 
               {/* Summary */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="card bg-green-50">
-                  <div className="card-body text-center">
-                    <CheckCircleIcon className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-green-900">
+                  <div className="card-body text-center p-4">
+                    <CheckCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mx-auto mb-2" />
+                    <div className="text-xl sm:text-2xl font-bold text-green-900">
                       {results.created.length}
                     </div>
-                    <div className="text-sm text-green-700">
+                    <div className="text-xs sm:text-sm text-green-700">
                       Users Created
                     </div>
                   </div>
                 </div>
                 <div className="card bg-red-50">
-                  <div className="card-body text-center">
-                    <ExclamationTriangleIcon className="h-8 w-8 text-red-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-red-900">
+                  <div className="card-body text-center p-4">
+                    <ExclamationTriangleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-red-600 mx-auto mb-2" />
+                    <div className="text-xl sm:text-2xl font-bold text-red-900">
                       {results.errors.length}
                     </div>
-                    <div className="text-sm text-red-700">
+                    <div className="text-xs sm:text-sm text-red-700">
                       Errors
                     </div>
                   </div>
@@ -389,18 +434,18 @@ Jane Smith,-,9999654321,student,1,10 A
               {/* Created Users */}
               {results.created.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-3">
+                  <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">
                     Successfully Created Users
                   </h4>
-                  <div className="bg-green-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                  <div className="bg-green-50 rounded-lg p-3 sm:p-4 max-h-60 overflow-y-auto">
                     {results.created.map((user, index) => (
-                      <div key={index} className="flex justify-between items-center py-2 border-b border-green-200 last:border-b-0">
+                      <div key={index} className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 border-b border-green-200 last:border-b-0 space-y-1 sm:space-y-0">
                         <div>
-                          <span className="font-medium text-green-900">{user.name}</span>
-                          <span className="text-green-700 ml-2">({user.role})</span>
+                          <span className="font-medium text-green-900 text-sm">{user.name}</span>
+                          <span className="text-green-700 ml-0 sm:ml-2 text-xs sm:text-sm block sm:inline">({user.role})</span>
                         </div>
-                        <div className="text-sm text-green-600">
-                          Password: {user.defaultPassword}
+                        <div className="text-xs sm:text-sm text-green-600">
+                          Password: <span className="font-mono">{user.defaultPassword}</span>
                         </div>
                       </div>
                     ))}
@@ -411,16 +456,16 @@ Jane Smith,-,9999654321,student,1,10 A
               {/* Errors */}
               {results.errors.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-3">
+                  <h4 className="font-medium text-gray-900 mb-3 text-sm sm:text-base">
                     Import Errors
                   </h4>
-                  <div className="bg-red-50 rounded-lg p-4 max-h-60 overflow-y-auto">
+                  <div className="bg-red-50 rounded-lg p-3 sm:p-4 max-h-60 overflow-y-auto">
                     {results.errors.map((error, index) => (
                       <div key={index} className="py-2 border-b border-red-200 last:border-b-0">
-                        <div className="font-medium text-red-900">
+                        <div className="font-medium text-red-900 text-sm">
                           Row {error.row}: {error.data.firstName} {error.data.lastName}
                         </div>
-                        <div className="text-sm text-red-700">
+                        <div className="text-xs sm:text-sm text-red-700 mt-1">
                           {error.error}
                         </div>
                       </div>
@@ -432,7 +477,7 @@ Jane Smith,-,9999654321,student,1,10 A
               <div className="flex justify-end">
                 <button
                   onClick={onClose}
-                  className="btn-primary"
+                  className="btn-primary w-full sm:w-auto"
                 >
                   Close
                 </button>
