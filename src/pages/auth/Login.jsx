@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../../contexts/AuthContext'
 import LoadingSpinner from '../../components/LoadingSpinner'
+import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 
 function Login() {
   const { login, isLoading, isAuthenticated } = useAuth()
@@ -54,8 +55,6 @@ function Login() {
         </div>
 
         <div className="bg-white py-8 px-6 shadow rounded-lg">
-
-
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div>
               <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
@@ -115,9 +114,18 @@ function Login() {
                 )}
               </button>
             </div>
-
-
           </form>
+        </div>
+
+        {/* Back Button - Outside of form, below sign-in */}
+        <div className="text-center">
+          <Link
+            to="/"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors duration-200"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back to Home
+          </Link>
         </div>
       </div>
     </div>
