@@ -115,30 +115,32 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
   ]
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[98vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-b border-gray-200 space-y-2 sm:space-y-0">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               Manage Timetable
             </h2>
-            <p className="text-gray-600">{classData?.name} - Grade {classData?.grade} Section {classData?.section}</p>
+            <p className="text-sm sm:text-base text-gray-600 truncate">
+              {classData?.name} - Grade {classData?.grade} Section {classData?.section}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 self-end sm:self-auto"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-          <div className="space-y-6">
+        <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(98vh-140px)] sm:max-h-[calc(90vh-140px)]">
+          <div className="space-y-4 sm:space-y-6">
             {days.map(({ key: day, label }) => (
-              <div key={day} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">{label}</h3>
-                  <div className="flex space-x-2">
+              <div key={day} className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+                  <h3 className="text-base sm:text-lg font-medium text-gray-900">{label}</h3>
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <select
                       onChange={(e) => {
                         if (e.target.value) {
@@ -146,7 +148,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                           e.target.value = ''
                         }
                       }}
-                      className="text-sm border border-gray-300 rounded px-2 py-1"
+                      className="text-xs sm:text-sm border border-gray-300 rounded px-2 py-1 w-full sm:w-auto"
                     >
                       <option value="">Copy from...</option>
                       {days.filter(d => d.key !== day).map(d => (
@@ -155,14 +157,14 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                     </select>
                     <button
                       onClick={() => addPeriod(day)}
-                      className="btn-outline btn-sm"
+                      className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full sm:w-auto"
                     >
-                      <PlusIcon className="h-4 w-4 mr-1" />
+                      <PlusIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       Add Period
                     </button>
                     <button
                       onClick={() => clearDay(day)}
-                      className="btn-outline btn-sm text-red-600 hover:text-red-700"
+                      className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 text-red-600 hover:text-red-700 w-full sm:w-auto"
                     >
                       Clear Day
                     </button>
@@ -170,65 +172,127 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                 </div>
 
                 {timetable[day].length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No periods scheduled for {label.toLowerCase()}
+                  <div className="text-center py-6 sm:py-8 text-gray-500">
+                    <div className="text-sm sm:text-base">No periods scheduled for {label.toLowerCase()}</div>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {timetable[day].map((period, index) => (
-                      <div key={index} className="grid grid-cols-12 gap-3 items-center bg-gray-50 p-3 rounded">
-                        <div className="col-span-1">
-                          <span className="text-sm font-medium text-gray-700">
-                            P{index + 1}
-                          </span>
-                        </div>
-                        
-                        <div className="col-span-3">
-                          <select
-                            value={period.time}
-                            onChange={(e) => updatePeriod(day, index, 'time', e.target.value)}
-                            className="input input-sm w-full"
-                            required
-                          >
-                            <option value="">Select time</option>
-                            {timeSlots.map(slot => (
-                              <option key={slot} value={slot}>{slot}</option>
-                            ))}
-                          </select>
+                      <div key={index} className="bg-gray-50 p-3 rounded">
+                        {/* Mobile Layout */}
+                        <div className="sm:hidden space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-700 bg-white px-2 py-1 rounded">
+                              Period {index + 1}
+                            </span>
+                            <button
+                              onClick={() => removePeriod(day, index)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                              title="Remove period"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Time</label>
+                              <select
+                                value={period.time}
+                                onChange={(e) => updatePeriod(day, index, 'time', e.target.value)}
+                                className="input text-sm w-full"
+                                required
+                              >
+                                <option value="">Select time</option>
+                                {timeSlots.map(slot => (
+                                  <option key={slot} value={slot}>{slot}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Subject</label>
+                              <select
+                                value={period.subject}
+                                onChange={(e) => updatePeriod(day, index, 'subject', e.target.value)}
+                                className="input text-sm w-full"
+                                required
+                              >
+                                <option value="">Select subject</option>
+                                {subjects.map(subject => (
+                                  <option key={subject} value={subject}>{subject}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-xs font-medium text-gray-600 mb-1">Teacher</label>
+                              <input
+                                type="text"
+                                value={period.teacher}
+                                onChange={(e) => updatePeriod(day, index, 'teacher', e.target.value)}
+                                placeholder="Teacher name"
+                                className="input text-sm w-full"
+                              />
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="col-span-3">
-                          <select
-                            value={period.subject}
-                            onChange={(e) => updatePeriod(day, index, 'subject', e.target.value)}
-                            className="input input-sm w-full"
-                            required
-                          >
-                            <option value="">Select subject</option>
-                            {subjects.map(subject => (
-                              <option key={subject} value={subject}>{subject}</option>
-                            ))}
-                          </select>
-                        </div>
+                        {/* Desktop Layout */}
+                        <div className="hidden sm:grid sm:grid-cols-12 gap-3 items-center">
+                          <div className="col-span-1">
+                            <span className="text-sm font-medium text-gray-700">
+                              P{index + 1}
+                            </span>
+                          </div>
+                          
+                          <div className="col-span-3">
+                            <select
+                              value={period.time}
+                              onChange={(e) => updatePeriod(day, index, 'time', e.target.value)}
+                              className="input input-sm w-full"
+                              required
+                            >
+                              <option value="">Select time</option>
+                              {timeSlots.map(slot => (
+                                <option key={slot} value={slot}>{slot}</option>
+                              ))}
+                            </select>
+                          </div>
 
-                        <div className="col-span-4">
-                          <input
-                            type="text"
-                            value={period.teacher}
-                            onChange={(e) => updatePeriod(day, index, 'teacher', e.target.value)}
-                            placeholder="Teacher name"
-                            className="input input-sm w-full"
-                          />
-                        </div>
+                          <div className="col-span-3">
+                            <select
+                              value={period.subject}
+                              onChange={(e) => updatePeriod(day, index, 'subject', e.target.value)}
+                              className="input input-sm w-full"
+                              required
+                            >
+                              <option value="">Select subject</option>
+                              {subjects.map(subject => (
+                                <option key={subject} value={subject}>{subject}</option>
+                              ))}
+                            </select>
+                          </div>
 
-                        <div className="col-span-1">
-                          <button
-                            onClick={() => removePeriod(day, index)}
-                            className="text-red-500 hover:text-red-700 p-1"
-                            title="Remove period"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
+                          <div className="col-span-4">
+                            <input
+                              type="text"
+                              value={period.teacher}
+                              onChange={(e) => updatePeriod(day, index, 'teacher', e.target.value)}
+                              placeholder="Teacher name"
+                              className="input input-sm w-full"
+                            />
+                          </div>
+
+                          <div className="col-span-1">
+                            <button
+                              onClick={() => removePeriod(day, index)}
+                              className="text-red-500 hover:text-red-700 p-1"
+                              title="Remove period"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -239,9 +303,9 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
           </div>
 
           {/* Quick Actions */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg">
             <h4 className="text-sm font-medium text-blue-900 mb-2">Quick Actions</h4>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => {
                   const standardTimetable = {
@@ -256,7 +320,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                   }
                   setTimetable(prev => ({ ...prev, ...standardTimetable }))
                 }}
-                className="btn-outline btn-sm"
+                className="btn-outline text-xs sm:text-sm px-3 py-2 w-full sm:w-auto"
               >
                 Load Sample Timetable
               </button>
@@ -270,7 +334,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                     })
                   }
                 }}
-                className="btn-outline btn-sm text-red-600"
+                className="btn-outline text-xs sm:text-sm px-3 py-2 text-red-600 w-full sm:w-auto"
               >
                 Clear All
               </button>
@@ -279,17 +343,17 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 p-4 sm:p-6 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="btn-outline"
+            className="btn-outline w-full sm:w-auto order-2 sm:order-1"
             disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="btn-primary"
+            className="btn-primary w-full sm:w-auto order-1 sm:order-2"
             disabled={isLoading}
           >
             {isLoading ? (
