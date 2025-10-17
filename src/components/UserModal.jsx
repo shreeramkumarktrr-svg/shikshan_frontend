@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { useQuery } from '@tanstack/react-query'
 import { XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
+import { subjectsAPI } from '../utils/api'
 
 function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] }) {
   const [showPassword, setShowPassword] = useState(false)
@@ -101,11 +103,20 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
     { value: 'other', label: 'Other' }
   ]
 
-  const commonSubjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi',
-    'History', 'Geography', 'Computer Science', 'Physical Education',
-    'Art', 'Music', 'Economics', 'Political Science', 'Psychology'
-  ]
+  // Fetch subjects from API
+  const { data: subjectsData, isLoading: subjectsLoading, error: subjectsError } = useQuery({
+    queryKey: ['subjects', { isActive: 'true' }],
+    queryFn: async () => {
+      const response = await subjectsAPI.getAll({ isActive: 'true' })
+      return response.data
+    },
+    retry: 1,
+    onError: (error) => {
+      console.error('Error fetching subjects:', error)
+    }
+  })
+
+  const subjects = Array.isArray(subjectsData?.data) ? subjectsData.data : []
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
@@ -400,19 +411,35 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
             <div>
               <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Subjects</h3>
               <div className="space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {commonSubjects.map((subject) => (
-                    <label key={subject} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        value={subject}
-                        {...register('subjects')}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{subject}</span>
-                    </label>
-                  ))}
-                </div>
+                {subjectsLoading ? (
+                  <div className="flex justify-center py-4">
+                    <LoadingSpinner size="sm" />
+                  </div>
+                ) : subjects.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">
+                    <p className="text-sm">No subjects available</p>
+                    <p className="text-xs mt-1">Create subjects using "Manage Subjects" first</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {subjects.map((subject) => (
+                      <label key={subject.id} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          value={subject.name}
+                          {...register('subjects')}
+                          className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          {subject.name}
+                          {subject.code && (
+                            <span className="text-xs text-gray-500 ml-1">({subject.code})</span>
+                          )}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

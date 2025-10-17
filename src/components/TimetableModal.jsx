@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { XMarkIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
+import { subjectsAPI } from '../utils/api'
 
 function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
+  const [selectedWeekRange, setSelectedWeekRange] = useState('mon-sat')
   const [timetable, setTimetable] = useState({
     monday: [],
     tuesday: [],
     wednesday: [],
     thursday: [],
     friday: [],
-    saturday: []
+    saturday: [],
+    sunday: []
   })
 
   useEffect(() => {
@@ -20,8 +24,13 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
         wednesday: classData.timetable.wednesday || [],
         thursday: classData.timetable.thursday || [],
         friday: classData.timetable.friday || [],
-        saturday: classData.timetable.saturday || []
+        saturday: classData.timetable.saturday || [],
+        sunday: classData.timetable.sunday || []
       })
+    }
+    // Set week range from classData if available
+    if (classData?.weekRange) {
+      setSelectedWeekRange(classData.weekRange)
     }
   }, [classData])
 
@@ -37,11 +46,20 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
     '15:15-16:00'
   ]
 
-  const subjects = classData?.subjects || [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi',
-    'History', 'Geography', 'Computer Science', 'Physical Education',
-    'Art', 'Music'
-  ]
+  // Fetch subjects from API
+  const { data: subjectsData, isLoading: subjectsLoading, error: subjectsError } = useQuery({
+    queryKey: ['subjects', { isActive: 'true' }],
+    queryFn: async () => {
+      const response = await subjectsAPI.getAll({ isActive: 'true' })
+      return response.data
+    },
+    retry: 1,
+    onError: (error) => {
+      console.error('Error fetching subjects:', error)
+    }
+  })
+
+  const subjects = Array.isArray(subjectsData?.data) ? subjectsData.data : []
 
   const addPeriod = (day) => {
     const newPeriod = {
@@ -74,9 +92,10 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
   }
 
   const handleSave = () => {
-    // Validate timetable
-    const isValid = Object.values(timetable).every(daySchedule =>
-      daySchedule.every(period => period.subject && period.time)
+    // Validate timetable for active days only
+    const activeDays = currentWeekRange.days
+    const isValid = activeDays.every(day =>
+      timetable[day].every(period => period.subject && period.time)
     )
 
     if (!isValid) {
@@ -84,7 +103,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
       return
     }
 
-    onSave(timetable)
+    onSave({ timetable, weekRange: selectedWeekRange })
   }
 
   const copyFromDay = (sourceDay, targetDay) => {
@@ -105,19 +124,35 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
     }
   }
 
-  const days = [
+  const weekRangeOptions = [
+    { value: 'mon-sat', label: 'Mon - Sat', days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] },
+    { value: 'tue-sun', label: 'Tue - Sun', days: ['tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] },
+    { value: 'wed-mon', label: 'Wed - Mon', days: ['wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'monday'] },
+    { value: 'thu-tue', label: 'Thu - Tue', days: ['thursday', 'friday', 'saturday', 'sunday', 'monday', 'tuesday'] },
+    { value: 'fri-wed', label: 'Fri - Wed', days: ['friday', 'saturday', 'sunday', 'monday', 'tuesday', 'wednesday'] },
+    { value: 'sat-thu', label: 'Sat - Thu', days: ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday'] },
+    { value: 'sun-fri', label: 'Sun - Fri', days: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'] }
+  ]
+
+  const allDays = [
     { key: 'monday', label: 'Monday' },
     { key: 'tuesday', label: 'Tuesday' },
     { key: 'wednesday', label: 'Wednesday' },
     { key: 'thursday', label: 'Thursday' },
     { key: 'friday', label: 'Friday' },
-    { key: 'saturday', label: 'Saturday' }
+    { key: 'saturday', label: 'Saturday' },
+    { key: 'sunday', label: 'Sunday' }
   ]
+
+  const currentWeekRange = weekRangeOptions.find(range => range.value === selectedWeekRange)
+  const days = currentWeekRange.days.map(dayKey => 
+    allDays.find(day => day.key === dayKey)
+  )
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[98vh] sm:max-h-[90vh] overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-b border-gray-200 space-y-2 sm:space-y-0">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-6 border-b border-gray-200 space-y-2 sm:space-y-0 flex-shrink-0 bg-white">
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               Manage Timetable
@@ -126,15 +161,47 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
               {classData?.name} - Grade {classData?.grade} Section {classData?.section}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1 self-end sm:self-auto"
-          >
-            <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-          </button>
+          <div className="flex items-center space-x-3">
+            <div className="flex flex-col">
+              <label className="text-xs font-medium text-gray-700 mb-1">Week Range</label>
+              <select
+                value={selectedWeekRange}
+                onChange={(e) => setSelectedWeekRange(e.target.value)}
+                className="input input-sm min-w-[100px] text-xs"
+                title="Select which days of the week to include in the timetable"
+              >
+                {weekRangeOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 self-end sm:self-auto"
+            >
+              <XMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+          </div>
         </div>
 
-        <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(98vh-140px)] sm:max-h-[calc(90vh-140px)]">
+        <div className="p-3 sm:p-6 overflow-y-auto flex-1 min-h-0">
+          {/* Week Range Info */}
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-blue-900">Active Week Range</h4>
+                <p className="text-xs text-blue-700">
+                  Currently showing: {currentWeekRange.label} ({days.map(d => d.label).join(', ')})
+                </p>
+              </div>
+              <div className="text-xs text-blue-600">
+                {days.length} days
+              </div>
+            </div>
+          </div>
+          
           <div className="space-y-4 sm:space-y-6">
             {days.map(({ key: day, label }) => (
               <div key={day} className="border border-gray-200 rounded-lg p-3 sm:p-4">
@@ -220,7 +287,9 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                               >
                                 <option value="">Select subject</option>
                                 {subjects.map(subject => (
-                                  <option key={subject} value={subject}>{subject}</option>
+                                  <option key={subject.id} value={subject.name}>
+                                    {subject.name} {subject.code && `(${subject.code})`}
+                                  </option>
                                 ))}
                               </select>
                             </div>
@@ -269,7 +338,9 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                             >
                               <option value="">Select subject</option>
                               {subjects.map(subject => (
-                                <option key={subject} value={subject}>{subject}</option>
+                                <option key={subject.id} value={subject.name}>
+                                  {subject.name} {subject.code && `(${subject.code})`}
+                                </option>
                               ))}
                             </select>
                           </div>
@@ -330,7 +401,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
                   if (window.confirm('Clear entire timetable?')) {
                     setTimetable({
                       monday: [], tuesday: [], wednesday: [], 
-                      thursday: [], friday: [], saturday: []
+                      thursday: [], friday: [], saturday: [], sunday: []
                     })
                   }
                 }}
@@ -343,7 +414,7 @@ function TimetableModal({ class: classData, onSave, onClose, isLoading }) {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 p-4 sm:p-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 p-4 sm:p-6 border-t border-gray-200 flex-shrink-0 bg-white">
           <button
             onClick={onClose}
             className="btn-outline w-full sm:w-auto order-2 sm:order-1"

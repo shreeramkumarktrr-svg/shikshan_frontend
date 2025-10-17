@@ -1,7 +1,9 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { useQuery } from '@tanstack/react-query'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
+import { subjectsAPI } from '../utils/api'
 
 function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoading }) {
   const {
@@ -56,13 +58,36 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'
   ]
 
-  const commonSubjects = [
-    'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi',
-    'History', 'Geography', 'Computer Science', 'Physical Education',
-    'Art', 'Music', 'Economics', 'Political Science', 'Psychology',
-    'Sociology', 'Philosophy', 'Environmental Science', 'Business Studies',
-    'Accountancy', 'Statistics', 'Home Science'
-  ]
+  // Fetch subjects from API
+  const { data: subjectsData, isLoading: subjectsLoading, error: subjectsError, refetch: refetchSubjects } = useQuery({
+    queryKey: ['subjects', { isActive: 'true' }],
+    queryFn: async () => {
+      const response = await subjectsAPI.getAll({ isActive: 'true' })
+      return response.data // Return just the data part
+    },
+    retry: 1,
+    staleTime: 0, // Always refetch
+    cacheTime: 0, // Don't cache
+    onError: (error) => {
+      console.error('Error fetching subjects:', error)
+    }
+  })
+
+  // Refetch subjects when modal opens
+  useEffect(() => {
+    refetchSubjects()
+  }, [])
+
+  // Ensure subjects is always an array
+  const subjects = React.useMemo(() => {
+    console.log('ClassModal - subjectsData:', subjectsData);
+    if (subjectsData?.data && Array.isArray(subjectsData.data)) {
+      console.log('ClassModal - subjects found:', subjectsData.data.length);
+      return subjectsData.data;
+    }
+    console.log('ClassModal - no subjects found, subjectsData structure:', subjectsData);
+    return [];
+  }, [subjectsData])
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
@@ -206,21 +231,51 @@ function ClassModal({ class: classData, teachers = [], onSave, onClose, isLoadin
 
           {/* Subjects */}
           <div>
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">Subjects</h3>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-base sm:text-lg font-medium text-gray-900">Subjects</h3>
+              <button
+                type="button"
+                onClick={() => refetchSubjects()}
+                className="text-xs text-blue-600 hover:text-blue-800"
+              >
+                Refresh
+              </button>
+            </div>
             <div className="space-y-2">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
-                {commonSubjects.map((subject) => (
-                  <label key={subject} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      value={subject}
-                      {...register('subjects')}
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{subject}</span>
-                  </label>
-                ))}
-              </div>
+              {subjectsLoading ? (
+                <div className="flex justify-center py-4">
+                  <LoadingSpinner size="sm" />
+                </div>
+              ) : subjectsError ? (
+                <div className="text-center py-4 text-red-500">
+                  <p className="text-sm">Error loading subjects</p>
+                  <p className="text-xs mt-1">{subjectsError.message}</p>
+                </div>
+              ) : subjects.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No subjects available</p>
+                  <p className="text-xs mt-1">Create subjects using "Manage Subjects" first</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+                  {subjects.map((subject) => (
+                    <label key={subject.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value={subject.name}
+                        {...register('subjects')}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 flex-shrink-0"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        {subject.name}
+                        {subject.code && (
+                          <span className="text-xs text-gray-500 ml-1">({subject.code})</span>
+                        )}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
               <div className="text-sm text-gray-500 mt-2">
                 Selected: {watchSubjects?.length || 0} subjects
               </div>

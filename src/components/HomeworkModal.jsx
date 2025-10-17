@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { homeworkAPI, classesAPI } from '../utils/api';
+import { useQuery } from '@tanstack/react-query';
+import { homeworkAPI, classesAPI, subjectsAPI } from '../utils/api';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 const HomeworkModal = ({ homework, onClose, onSuccess }) => {
@@ -21,6 +22,21 @@ const HomeworkModal = ({ homework, onClose, onSuccess }) => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Fetch subjects from API
+  const { data: subjectsData, isLoading: subjectsLoading, error: subjectsError } = useQuery({
+    queryKey: ['subjects', { isActive: 'true' }],
+    queryFn: async () => {
+      const response = await subjectsAPI.getAll({ isActive: 'true' })
+      return response.data
+    },
+    retry: 1,
+    onError: (error) => {
+      console.error('Error fetching subjects:', error)
+    }
+  });
+
+  const subjects = Array.isArray(subjectsData?.data) ? subjectsData.data : [];
 
   useEffect(() => {
     fetchClasses();
@@ -120,14 +136,26 @@ const HomeworkModal = ({ homework, onClose, onSuccess }) => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Subject *
               </label>
-              <input
-                type="text"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              {subjectsLoading ? (
+                <div className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-500">
+                  Loading subjects...
+                </div>
+              ) : (
+                <select
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Subject</option>
+                  {subjects.map((subject) => (
+                    <option key={subject.id} value={subject.name}>
+                      {subject.name} {subject.code && `(${subject.code})`}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 

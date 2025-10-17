@@ -11,7 +11,8 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  ClockIcon
+  ClockIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline'
 import { useAuth } from '../contexts/AuthContext'
 import { classesAPI, usersAPI } from '../utils/api'
@@ -19,6 +20,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import ClassModal from '../components/ClassModal'
 import ClassDetailModal from '../components/ClassDetailModal'
 import TimetableModal from '../components/TimetableModal'
+import ManageSubjectsModal from '../components/ManageSubjectsModal'
 import toast from 'react-hot-toast'
 
 function Classes() {
@@ -27,6 +29,7 @@ function Classes() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [isTimetableModalOpen, setIsTimetableModalOpen] = useState(false)
+  const [isSubjectsModalOpen, setIsSubjectsModalOpen] = useState(false)
   const [selectedClass, setSelectedClass] = useState(null)
   const [filters, setFilters] = useState({
     search: '',
@@ -214,16 +217,25 @@ function Classes() {
           <p className="text-sm sm:text-base text-gray-600 mt-1">Manage classes, sections, and timetables</p>
         </div>
         {canManageClasses && (
-          <button
-            onClick={() => {
-              setSelectedClass(null)
-              setIsCreateModalOpen(true)
-            }}
-            className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base"
-          >
-            <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span>Add Class</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setIsSubjectsModalOpen(true)}
+              className="w-full sm:w-auto btn-outline flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base"
+            >
+              <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Manage Subjects</span>
+            </button>
+            <button
+              onClick={() => {
+                setSelectedClass(null)
+                setIsCreateModalOpen(true)
+              }}
+              className="w-full sm:w-auto btn-primary flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base"
+            >
+              <PlusIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Add Class</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -565,6 +577,7 @@ function Classes() {
       {/* Modals */}
       {isCreateModalOpen && (
         <ClassModal
+          key={`class-modal-${selectedClass?.id || 'new'}-${Date.now()}`}
           class={selectedClass}
           teachers={teachers}
           onSave={selectedClass ? handleUpdateClass : handleCreateClass}
@@ -607,6 +620,12 @@ function Classes() {
             setSelectedClass(null)
           }}
           isLoading={updateTimetableMutation.isLoading}
+        />
+      )}
+
+      {isSubjectsModalOpen && (
+        <ManageSubjectsModal
+          onClose={() => setIsSubjectsModalOpen(false)}
         />
       )}
     </div>

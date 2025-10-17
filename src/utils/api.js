@@ -179,6 +179,19 @@ export const feesAPI = {
   getReport: (params) => api.get('/fees/report', { params })
 }
 
+// Subjects API
+export const subjectsAPI = {
+  getAll: (params = {}) => {
+    const searchParams = new URLSearchParams(params)
+    return api.get(`/subjects?${searchParams}`)
+  },
+  getById: (id) => api.get(`/subjects/${id}`),
+  create: (data) => api.post('/subjects', data),
+  update: (id, data) => api.put(`/subjects/${id}`, data),
+  delete: (id) => api.delete(`/subjects/${id}`),
+  getCategories: () => api.get('/subjects/meta/categories')
+}
+
 // Reports API
 export const reportsAPI = {
   getAttendance: (params) => api.get('/reports/attendance', { params }),
