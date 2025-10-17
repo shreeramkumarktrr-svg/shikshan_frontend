@@ -70,7 +70,10 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
       ...data,
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth).toISOString() : null,
       subjects: data.subjects ? data.subjects.filter(subject => subject.trim() !== '') : [],
-      isActive: data.isActive === 'true' || data.isActive === true // Convert string to boolean
+      isActive: data.isActive === 'true' || data.isActive === true, // Convert string to boolean
+      // Convert empty email strings to null to avoid validation issues
+      email: data.email && data.email.trim() !== '' ? data.email : null,
+      parentEmail: data.parentEmail && data.parentEmail.trim() !== '' ? data.parentEmail : null
     }
     
     // Remove password field when updating existing users (password updates should be handled separately)
@@ -179,7 +182,7 @@ function UserModal({ user, onSave, onClose, isLoading, userType, classes = [] })
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
+                  Email (Optional)
                 </label>
                 <input
                   {...register('email', {
