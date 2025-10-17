@@ -505,10 +505,10 @@ function Teachers() {
 
       {isPasswordModalOpen && (
         <PasswordModal
-          isOpen={isPasswordModalOpen}
-          onClose={() => setIsPasswordModalOpen(false)}
-          onSubmit={handlePasswordChange}
           user={selectedTeacher}
+          onSave={handlePasswordChange}
+          onClose={() => setIsPasswordModalOpen(false)}
+          isLoading={changePasswordMutation.isPending}
         />
       )}
     </div>
